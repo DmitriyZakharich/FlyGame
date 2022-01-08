@@ -65,8 +65,6 @@ class TableCreator(val context: Context) {
                 cells[i][j]?.setOnClickListener(OnClick)
 
 
-
-
                 rows[i]?.addView(cells[i][j])
             }
 

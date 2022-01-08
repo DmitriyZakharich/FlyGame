@@ -1,17 +1,16 @@
 package com.example.flygame.gamefield
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
-import com.example.flygame.R
 import com.example.flygame.databinding.FragmentGameBinding
-import com.example.flygame.databinding.FragmentSettingsBinding
 
 
-class GameFragment : Fragment(R.layout.fragment_game) {
+class GameFragment : Fragment(), View.OnClickListener {
 
     private var viewModel: GameViewModel? = null
     private lateinit var binding: FragmentGameBinding
@@ -31,15 +30,7 @@ class GameFragment : Fragment(R.layout.fragment_game) {
         createGameField()
         initViewModel()
         subscribeLiveData()
-    }
-
-    private fun subscribeLiveData() {
-        viewModel?.getLiveDataCoordinates()?.observe(requireActivity(),
-            { println(it) })
-    }
-
-    private fun initViewModel() {
-        viewModel = ViewModelProvider(this)[GameViewModel::class.java]
+        initViews()
     }
 
     private fun createGameField() {
@@ -47,14 +38,41 @@ class GameFragment : Fragment(R.layout.fragment_game) {
         binding.gameFieldContainer.addView(creator.getGameField())
     }
 
+    private fun initViewModel() {
+        viewModel = ViewModelProvider(this)[GameViewModel::class.java]
+    }
+
+    private fun subscribeLiveData() {
+        viewModel?.getLiveDataCoordinates()?.observe(requireActivity(),
+            { println(it) })
+
+        viewModel?.getLiveDataGameProcess()?.observe(requireActivity(),
+            {
+                if (it) {
+                    binding.buttonStartGame.visibility = View.INVISIBLE
+                    binding.progressBar.visibility = View.VISIBLE
+                } else {
+                    binding.buttonStartGame.visibility = View.VISIBLE
+                    binding.progressBar.visibility = View.INVISIBLE
+                }
+            })
+    }
+
+    private fun initViews() {
+        binding.buttonStartGame.setOnClickListener(this)
+    }
 
     companion object {
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
             GameFragment().apply {
                 arguments = Bundle().apply {
-
                 }
             }
+    }
+
+    override fun onClick(v: View?) {
+        Log.d("tagTag123321", "onClick: ")
+        viewModel?.startGame()
     }
 }
