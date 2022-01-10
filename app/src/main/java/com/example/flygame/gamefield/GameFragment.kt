@@ -27,19 +27,19 @@ class GameFragment : Fragment(), View.OnClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        createGameField()
         initViewModel()
+        createGameField()
         subscribeLiveData()
         initViews()
     }
 
-    private fun createGameField() {
-        val creator = TableCreator(requireContext())
-        binding.gameFieldContainer.addView(creator.getGameField())
-    }
-
     private fun initViewModel() {
         viewModel = ViewModelProvider(this)[GameViewModel::class.java]
+    }
+
+    private fun createGameField() {
+        val creator = TableCreator(requireContext(), viewModel!!)
+        binding.gameFieldContainer.addView(creator.getGameField())
     }
 
     private fun subscribeLiveData() {

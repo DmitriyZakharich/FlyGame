@@ -22,7 +22,9 @@ class PreferencesReader {
                     PreferencesWriter.APP_PREFERENCES,
                     MODE_PRIVATE
                 )
-                val adjustmentValue = 3 //3x3 - position №0 in Spinner
+                val adjustmentValue = 2 //3x3 - position №0 in Spinner
+                                        //Начало таблицы с 0
+                                        //Значения 0,1,2
                 return settings.getInt(PreferencesWriter.KEY_TABLE_SIZE, 0) + adjustmentValue
             }
     }

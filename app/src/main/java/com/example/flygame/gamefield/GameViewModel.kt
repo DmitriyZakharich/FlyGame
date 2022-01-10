@@ -2,7 +2,6 @@ package com.example.flygame.gamefield
 
 import android.speech.tts.TextToSpeech
 import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,10 +12,12 @@ import java.util.*
 
 class GameViewModel : ViewModel(), TextToSpeech.OnInitListener {
 
-    private var liveDataCoordinates: MutableLiveData<Pair<Int, Int>> = MutableLiveData()
-    private lateinit var startCoordinatesPair: Pair<Int, Int>
+    private var liveDataCoordinates: MutableLiveData<Triple<Int, Int, Int>> = MutableLiveData()
+    private lateinit var startCoordinatesTriple: Triple<Int, Int, Int>
     private var textToSpeech: TextToSpeech = TextToSpeech(App.appContext, this)
     private var liveDataGameProcess: MutableLiveData<Boolean> = MutableLiveData()
+    private var tableSize: Int = 0
+    private lateinit var dataForCheck: Map<Int, String>
 
     init {
         settingInitialCoordinates()
@@ -24,15 +25,17 @@ class GameViewModel : ViewModel(), TextToSpeech.OnInitListener {
 
     private fun settingInitialCoordinates() {
 
-        val tableSize = PreferencesReader.tableSize
-        val coordinates = if (tableSize % 2 == 0) {
-            tableSize / 2
-        } else {
-            tableSize / 2 + 1 //if tableSize 3x3 then start coordinates 2x2
-        }
+        tableSize = PreferencesReader.tableSize         //Начало с 0
+        val coordinates =
+            tableSize / 2                 //Центр таблицы для нечетных, приблизительный центр для четных
+        //Для таблицы из 3х стоблцов значение равно 1 (начало с 0)
 
-        startCoordinatesPair = Pair(coordinates, coordinates)
-        liveDataCoordinates.value = startCoordinatesPair
+        startCoordinatesTriple = if (PreferencesReader.isVolumeTable)
+            Triple(coordinates, coordinates, coordinates)
+        else
+            Triple(0, coordinates, coordinates)
+
+        liveDataCoordinates.value = startCoordinatesTriple
     }
 
     fun getLiveDataCoordinates() = liveDataCoordinates
@@ -56,85 +59,114 @@ class GameViewModel : ViewModel(), TextToSpeech.OnInitListener {
     private suspend fun gameProcess() = coroutineScope {
         launch {
 
-            var moveHorizontally = startCoordinatesPair.first
-            var moveVertically = startCoordinatesPair.second
+            var coordinateVolumeZ = startCoordinatesTriple.first
+            var coordinateVerticalY = startCoordinatesTriple.second
+            var coordinateHorizontalX = startCoordinatesTriple.third
 
+            Log.d(
+                "tagTag123321",
+                "start  x = $coordinateHorizontalX,  y = $coordinateVerticalY, z = $coordinateVolumeZ"
+            )
 
             var count = 0
             var notification = ""
+            var previousMove = Pair("", 0)
+
 
             do {
-                val randomHorizontally = (-1..1).random()
-                val randomVertically = (-1..1).random()
+                val moveDirection = GameMoves.getMovePlane()
+                val move = GameMoves.getPlusOrMinus()
+                Log.d("tagTag123321", "-------------------movePlane: $moveDirection    sign: $move")
 
-                if ((moveHorizontally + randomHorizontally) >= 0
-                    && (moveHorizontally + randomHorizontally) < PreferencesReader.tableSize
+                var successfulMove = false
 
-                    && (moveVertically + randomVertically) >= 0
-                    && (moveVertically + randomVertically) < PreferencesReader.tableSize
+                //Запрет хода назад
+                //Если x++, то нельзя x--
+                if (previousMove == Pair(moveDirection, -move)) {
+                    previousMove = Pair(moveDirection, move)
+                    Log.d("tagTag123321", "Ход назад")
+                    continue
+                }
+                previousMove = Pair(moveDirection, move)
 
-                    && !(moveHorizontally == 0 && moveVertically == 0)
-                ) {
-
-
-                if (randomHorizontally == 0 && randomVertically == -1)
-                    notification ="Вверх"
-
-                if (randomHorizontally == 0 && randomVertically == 1)
-                    notification ="Вниз"
-
-                if (randomHorizontally == -1 && randomVertically == 0)
-                    notification ="Влево"
-
-                if (randomHorizontally == 1 && randomVertically == 0)
-                    notification ="Вправо"
+                when (moveDirection) {
+                    "X" -> if ((coordinateHorizontalX + move) >= 0 && (coordinateHorizontalX + move) <= tableSize) {
+                        coordinateHorizontalX += move
+                        notification = if (move < 0) "Влево" else "Вправо"
+                        successfulMove = true
+                    }
 
 
-
-                if (randomHorizontally == -1 && randomVertically == -1)
-                    notification ="В - Л"
-
-                if (randomHorizontally == -1 && randomVertically == 1)
-                    notification ="В - П"
-
-                if (randomHorizontally == 1 && randomVertically == -1)
-                    notification ="Н - Л"
-
-                if (randomHorizontally == 1 && randomVertically == 1)
-                    notification ="Н - П"
+                    "Y" -> if ((coordinateVerticalY + move) >= 0 && (coordinateVerticalY + move) <= tableSize) {
+                        coordinateVerticalY += move
+                        notification = if (move < 0) "Вверх" else "Вниз"
+                        successfulMove = true
+                    }
 
 
-                    moveHorizontally += randomHorizontally
-                    moveVertically += randomVertically
+                    "Z" -> if ((coordinateVolumeZ + move) >= 0 && (coordinateVolumeZ + move) <= tableSize) {
+                        coordinateVolumeZ += move
+                        notification = if (move < 0) "Вперед" else "Назад"
+                        successfulMove = true
+                    }
+                }
 
-                    Toast.makeText(
-                        App.appContext,
-                        "корутина : $moveHorizontally   :   $moveVertically",
-                        Toast.LENGTH_SHORT
-                    ).show()
 
+                Log.d("tagTag123321", "successfulMove: $successfulMove")
+                Log.d(
+                    "tagTag123321",
+                    "x = $coordinateVerticalY,  y = $coordinateHorizontalX, z = $coordinateVolumeZ"
+                )
+
+
+                if (successfulMove) {
                     textToSpeech.language = Locale("ru")
                     textToSpeech.speak(notification, TextToSpeech.QUEUE_FLUSH, null, "")
 
                     delay(1500L)
 
-
                     count++
+                    previousMove = Pair(moveDirection, move)
+
                 }
 
             } while (count < 5)
 
-            startCoordinatesPair = Pair(moveHorizontally, moveVertically)
+            startCoordinatesTriple =
+                Triple(coordinateVolumeZ, coordinateVerticalY, coordinateHorizontalX)
 
-            Log.d("tagTag123321", "startCoordinatesPair: $startCoordinatesPair")
-            Toast.makeText(
-                App.appContext,
-                "startCoordinatesPair: $startCoordinatesPair",
-                Toast.LENGTH_LONG
-            ).show()
+            Log.d("tagTag123321", "startCoordinatesPair: $startCoordinatesTriple")
 
         }
     }
+
+    fun cellClickListener(id: Int) {
+
+        when (id) {
+            in 100..999 -> if ("$id"[0].digitToInt() == startCoordinatesTriple.third
+                && "$id"[1].digitToInt() == startCoordinatesTriple.second
+                && "$id"[2].digitToInt() == startCoordinatesTriple.first)
+                Log.d("tagTag123321", "---------Ура--------")
+
+            in 10..99 ->
+                if ("$id"[0].digitToInt() == startCoordinatesTriple.second
+                    && "$id"[1].digitToInt() == startCoordinatesTriple.third
+                    && startCoordinatesTriple.first == 0)
+                    Log.d("tagTag123321", "---------Ура--------")
+
+            in 0..9 ->
+                if ("$id"[0].digitToInt() == startCoordinatesTriple.third
+                    && startCoordinatesTriple.second == 0
+                    && startCoordinatesTriple.first == 0)
+                    Log.d("tagTag123321", "---------Ура--------")
+        }
+
+//        if ("$id"[0].digitToInt() == startCoordinatesTriple.first
+//            && "$id"[1].digitToInt() == startCoordinatesTriple.second) {
+//            Log.d("tagTag123321", "---------Ура--------")
+//        }
+    }
+
 
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
@@ -142,7 +174,7 @@ class GameViewModel : ViewModel(), TextToSpeech.OnInitListener {
             val result = textToSpeech.setLanguage(Locale.US)
 
             if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                Log.e("TTS","The Language specified is not supported!")
+                Log.e("TTS", "The Language specified is not supported!")
             } else {
 //                btnObjectDetection.isEnabled = true
             }
@@ -151,4 +183,10 @@ class GameViewModel : ViewModel(), TextToSpeech.OnInitListener {
             Log.e("TTS", "Initialization Failed!")
         }
     }
+
+    fun setData(dataForCheck: MutableMap<Int, String>) {
+        this.dataForCheck = dataForCheck
+    }
+
+
 }
