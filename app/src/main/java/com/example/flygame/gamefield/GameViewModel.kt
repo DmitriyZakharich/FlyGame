@@ -13,11 +13,13 @@ import java.util.*
 class GameViewModel : ViewModel(), TextToSpeech.OnInitListener {
 
     private var liveDataCoordinates: MutableLiveData<Triple<Int, Int, Int>> = MutableLiveData()
-    private lateinit var startCoordinatesTriple: Triple<Int, Int, Int>
     private var textToSpeech: TextToSpeech = TextToSpeech(App.appContext, this)
     private var liveDataGameProcess: MutableLiveData<Boolean> = MutableLiveData()
     private var tableSize: Int = 0
-    private lateinit var dataForCheck: Map<Int, String>
+
+    private var coordinateVolumeZ = -1
+    private var coordinateVerticalY = -1
+    private var coordinateHorizontalX = -1
 
     init {
         settingInitialCoordinates()
@@ -25,17 +27,14 @@ class GameViewModel : ViewModel(), TextToSpeech.OnInitListener {
 
     private fun settingInitialCoordinates() {
 
-        tableSize = PreferencesReader.tableSize         //Начало с 0
+        tableSize = PreferencesReader.tableSize             //Начало с 0
         val coordinates =
-            tableSize / 2                 //Центр таблицы для нечетных, приблизительный центр для четных
-        //Для таблицы из 3х стоблцов значение равно 1 (начало с 0)
+            tableSize / 2                   //Центр таблицы для нечетных, приблизительный центр для четных
+                                            // Для таблицы 3х3 позиция 1x1 (начало с 0)
 
-        startCoordinatesTriple = if (PreferencesReader.isVolumeTable)
-            Triple(coordinates, coordinates, coordinates)
-        else
-            Triple(0, coordinates, coordinates)
-
-        liveDataCoordinates.value = startCoordinatesTriple
+        coordinateVolumeZ = if (PreferencesReader.isVolumeTable) coordinates else 0
+        coordinateVerticalY = coordinates
+        coordinateHorizontalX = coordinates
     }
 
     fun getLiveDataCoordinates() = liveDataCoordinates
@@ -59,14 +58,7 @@ class GameViewModel : ViewModel(), TextToSpeech.OnInitListener {
     private suspend fun gameProcess() = coroutineScope {
         launch {
 
-            var coordinateVolumeZ = startCoordinatesTriple.first
-            var coordinateVerticalY = startCoordinatesTriple.second
-            var coordinateHorizontalX = startCoordinatesTriple.third
-
-            Log.d(
-                "tagTag123321",
-                "start  x = $coordinateHorizontalX,  y = $coordinateVerticalY, z = $coordinateVolumeZ"
-            )
+            Log.d("tagTag123321","start  z = $coordinateVolumeZ,  y = $coordinateVerticalY, x = $coordinateHorizontalX")
 
             var count = 0
             var notification = ""
@@ -76,7 +68,6 @@ class GameViewModel : ViewModel(), TextToSpeech.OnInitListener {
             do {
                 val moveDirection = GameMoves.getMovePlane()
                 val move = GameMoves.getPlusOrMinus()
-                Log.d("tagTag123321", "-------------------movePlane: $moveDirection    sign: $move")
 
                 var successfulMove = false
 
@@ -84,7 +75,6 @@ class GameViewModel : ViewModel(), TextToSpeech.OnInitListener {
                 //Если x++, то нельзя x--
                 if (previousMove == Pair(moveDirection, -move)) {
                     previousMove = Pair(moveDirection, move)
-                    Log.d("tagTag123321", "Ход назад")
                     continue
                 }
                 previousMove = Pair(moveDirection, move)
@@ -112,14 +102,10 @@ class GameViewModel : ViewModel(), TextToSpeech.OnInitListener {
                 }
 
 
-                Log.d("tagTag123321", "successfulMove: $successfulMove")
-                Log.d(
-                    "tagTag123321",
-                    "x = $coordinateVerticalY,  y = $coordinateHorizontalX, z = $coordinateVolumeZ"
-                )
-
 
                 if (successfulMove) {
+                    Log.d("tagTag123321", "Ход: $notification")
+                    Log.d("tagTag123321", "Позиция: $coordinateVolumeZ$coordinateVerticalY$coordinateHorizontalX")
                     textToSpeech.language = Locale("ru")
                     textToSpeech.speak(notification, TextToSpeech.QUEUE_FLUSH, null, "")
 
@@ -132,10 +118,7 @@ class GameViewModel : ViewModel(), TextToSpeech.OnInitListener {
 
             } while (count < 5)
 
-            startCoordinatesTriple =
-                Triple(coordinateVolumeZ, coordinateVerticalY, coordinateHorizontalX)
-
-            Log.d("tagTag123321", "startCoordinatesPair: $startCoordinatesTriple")
+            Log.d("tagTag123321", "Конец: $coordinateVolumeZ $coordinateVerticalY $coordinateHorizontalX")
 
         }
     }
@@ -143,28 +126,24 @@ class GameViewModel : ViewModel(), TextToSpeech.OnInitListener {
     fun cellClickListener(id: Int) {
 
         when (id) {
-            in 100..999 -> if ("$id"[0].digitToInt() == startCoordinatesTriple.third
-                && "$id"[1].digitToInt() == startCoordinatesTriple.second
-                && "$id"[2].digitToInt() == startCoordinatesTriple.first)
-                Log.d("tagTag123321", "---------Ура--------")
+            in 100..999 ->
+                if ("$id"[0].digitToInt() == coordinateVolumeZ
+                    && "$id"[1].digitToInt() == coordinateVerticalY
+                    && "$id"[2].digitToInt() == coordinateHorizontalX)
+                    Log.d("tagTag123321", "---------Ура--------")
 
             in 10..99 ->
-                if ("$id"[0].digitToInt() == startCoordinatesTriple.second
-                    && "$id"[1].digitToInt() == startCoordinatesTriple.third
-                    && startCoordinatesTriple.first == 0)
+                if (coordinateVolumeZ == 0
+                    && "$id"[1].digitToInt() == coordinateVerticalY
+                    && "$id"[2].digitToInt() == coordinateHorizontalX)
                     Log.d("tagTag123321", "---------Ура--------")
 
             in 0..9 ->
-                if ("$id"[0].digitToInt() == startCoordinatesTriple.third
-                    && startCoordinatesTriple.second == 0
-                    && startCoordinatesTriple.first == 0)
+                if (coordinateVolumeZ == 0
+                    && coordinateVerticalY == 0
+                    && "$id"[0].digitToInt() == coordinateHorizontalX)
                     Log.d("tagTag123321", "---------Ура--------")
         }
-
-//        if ("$id"[0].digitToInt() == startCoordinatesTriple.first
-//            && "$id"[1].digitToInt() == startCoordinatesTriple.second) {
-//            Log.d("tagTag123321", "---------Ура--------")
-//        }
     }
 
 
@@ -183,10 +162,4 @@ class GameViewModel : ViewModel(), TextToSpeech.OnInitListener {
             Log.e("TTS", "Initialization Failed!")
         }
     }
-
-    fun setData(dataForCheck: MutableMap<Int, String>) {
-        this.dataForCheck = dataForCheck
-    }
-
-
 }

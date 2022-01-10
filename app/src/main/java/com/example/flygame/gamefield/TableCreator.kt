@@ -12,17 +12,20 @@ import android.widget.Toast
 import androidx.appcompat.widget.AppCompatTextView
 import com.example.flygame.settings.PreferencesReader
 
-class TableCreator(val context: Context, val viewModel: GameViewModel) {
+class TableCreator(private val context: Context, private val viewModel: GameViewModel) {
 
     private lateinit var field: TableLayout
     private var tableSize: Int
-    private var rows: Array<TableRow?>
-    private var cells: Array<Array<AppCompatTextView?>>
+    private var rows: Array<Array<TableRow?>>                               //двухмерный массив
+    private var cells: Array<Array<Array<AppCompatTextView?>>>              //трехмерный массив для ячеек
 
     init {
         tableSize = PreferencesReader.tableSize
-        rows = Array(tableSize + 1) { null }
-        cells = Array(tableSize + 1) { Array(tableSize + 1) { null } }
+        rows = Array(tableSize + 1) { Array(tableSize + 1) { null } }
+        cells = Array(tableSize + 1) { Array(tableSize + 1) { Array(tableSize + 1) { null } } }
+
+//        var cells2: Array<Array<Array<AppCompatTextView?>>> = Array(tableSize + 1) { Array(++tableSize) { Array(++tableSize) { null } }}
+
 
         startCreate()
     }
@@ -36,44 +39,47 @@ class TableCreator(val context: Context, val viewModel: GameViewModel) {
         )
 
 
-
-        for (i in 0..tableSize) {
-            rows[i] = TableRow(context)
-            rows[i]?.layoutParams =
-                TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, 0, 1F)
-            field.addView(rows[i])
+        for (z in 0..tableSize){
+            for (y in 0..tableSize) {
+                rows[z][y] = TableRow(context)
+                rows[z][y]?.layoutParams =
+                    TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, 0, 1F)
+                field.addView(rows[z][y])
+            }
         }
 
-        for (y in 0..tableSize) {
-            for (x in 0..tableSize) {
-                cells[y][x] = AppCompatTextView(context)
-
-                cells[y][x]?.text = "1"
-                cells[y][x]?.gravity = Gravity.CENTER
-                cells[y][x]?.textSize = 50F
-                cells[y][x]?.setBackgroundColor(Color.BLUE)
-
-                val layoutParams = TableRow.LayoutParams(
-                    0,
-                    TableRow.LayoutParams.MATCH_PARENT, 1F
-                )
-                layoutParams.setMargins(1, 1, 1, 1)
-
-                cells[y][x]?.layoutParams = layoutParams
-                cells[y][x]?.setOnClickListener(onClick())
+        for (z in 0..tableSize) {
+            for (y in 0..tableSize) {
+                for (x in 0..tableSize) {
+                    cells[z][y][x] = AppCompatTextView(context)
 
 
-                try {
-                    Log.d("tagTag12332112", "$y$x")
-                    cells[y][x]?.id = ("$y$x").toInt()      //y и x - расположение ячейки -> id
-                } catch (nfe: NumberFormatException) {
-                    Toast.makeText(context, nfe.message, Toast.LENGTH_LONG).show()
+                    cells[z][y][x]?.gravity = Gravity.CENTER
+                    cells[z][y][x]?.textSize = 25F
+                    cells[z][y][x]?.setBackgroundColor(Color.BLUE)
+
+                    val layoutParams = TableRow.LayoutParams(
+                        0,
+                        TableRow.LayoutParams.MATCH_PARENT, 1F
+                    )
+                    layoutParams.setMargins(1, 1, 1, 1)
+
+                    cells[z][y][x]?.layoutParams = layoutParams
+                    cells[z][y][x]?.setOnClickListener(onClick())
+
+
+                    try {
+                        cells[z][y][x]?.id = ("$z$y$x").toInt()      //z, y и x - расположение ячейки -> id
+                    } catch (nfe: NumberFormatException) {
+                        Toast.makeText(context, nfe.message, Toast.LENGTH_LONG).show()
+                    }
+                    Log.d("tagTag1233211", "---------${cells[z][y][x]?.id}--------")
+
+                    cells[z][y][x]?.text = cells[z][y][x]?.id.toString()
+
+                    rows[z][y]?.addView(cells[z][y][x])
+
                 }
-                Log.d("tagTag1233211", "---------${cells[y][x]?.id}--------")
-                Log.d("tagTag1233211", "y = $y  x = $x")
-
-                rows[y]?.addView(cells[y][x])
-
             }
         }
     }
