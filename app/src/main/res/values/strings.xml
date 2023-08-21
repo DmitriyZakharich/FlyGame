@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">Fly Game</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="fly_game">Игра Муха</string>
+    <string name="statistic">Статистика</string>
+    <string name="settings">Настройки</string>
+    <string name="about_app">О программе</string>
+    <string name="instructions">Инструкция</string>
+    <string name="table_size">Размер таблицы</string>
+    <string name="volumetric_field">Объёмное поле</string>
+    <string name="start">Старт</string>
+
+
+    <string-array name="table_size">
+        <item>3x3</item>
+        <item>4x4</item>
+        <item>5x5</item>
+        <item>6x6</item>
+        <item>7x7</item>
+        <item>8x8</item>
+        <item>9x9</item>
+        <item>10x10</item>
+    </string-array>
+    <string name="title_activity_compose">ComposeActivity</string>
+    <string name="Settings">Настройки</string>
+    <string name="speed">Скорость</string>
+    <string name="voice">Голос</string>
+    <string name="number_of_moves">Количество ходов</string>
+    <string name="complication">Усложнения</string>
+</resources>
+
