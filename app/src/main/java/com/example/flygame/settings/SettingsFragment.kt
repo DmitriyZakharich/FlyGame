@@ -41,11 +41,11 @@ class SettingsFragment : Fragment(R.layout.fragment_settings), AdapterView.OnIte
     }
 
     private fun subscriptionLiveData() {
-        val liveDataIsVolumeTable = viewModel?.liveDataIsVolumeTable?.observe(
-            viewLifecycleOwner, { binding.switchVolumeTable.isChecked = it })
-
-        val liveDataTableSize = viewModel?.liveDataTableSize?.observe(
-            viewLifecycleOwner, { binding.spinnerTableSize.setSelection(it) })
+//        val liveDataIsVolumeTable = viewModel?.liveDataIsVolumeTable?.observe(
+//            viewLifecycleOwner, { binding.switchVolumeTable.isChecked = it })
+//
+//        val liveDataTableSize = viewModel?.liveDataTableSize?.observe(
+//            viewLifecycleOwner, { binding.spinnerTableSize.setSelection(it) })
     }
 
     private fun initViews() {
@@ -68,18 +68,18 @@ class SettingsFragment : Fragment(R.layout.fragment_settings), AdapterView.OnIte
     }
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-        viewModel?.spinnerItemSelected(parent?.id!!, position)
+//        viewModel?.spinnerItemSelected(parent?.id!!, position)
     }
 
     override fun onNothingSelected(parent: AdapterView<*>?) {}
 
     override fun onClick(v: View?) {
-        when (v?.id) {
-            binding.switchVolumeTable.id -> viewModel?.clickListener(
-                binding.switchVolumeTable.id,
-                (v as SwitchCompat).isChecked
-            )
-        }
+//        when (v?.id) {
+//            binding.switchVolumeTable.id -> viewModel?.clickListener(
+//                binding.switchVolumeTable.id,
+//                (v as SwitchCompat).isChecked
+//            )
+//        }
     }
 
 }

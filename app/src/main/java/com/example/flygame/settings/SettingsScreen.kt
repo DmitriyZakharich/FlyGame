@@ -1,5 +1,6 @@
 package com.example.flygame.settings
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,6 +15,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,48 +29,74 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.flygame.R
+import com.example.flygame.settings.models.TAG
+import com.example.flygame.settings.models.listNumberOfMoves
+import com.example.flygame.settings.models.listSpeed
+import com.example.flygame.settings.models.listTableSizes
+import com.example.flygame.settings.models.listVoiceArrows
+import com.example.flygame.settings.viewstate.SettingsState
 
 @Composable
 fun SettingsScreen() {
     val viewModel: SettingsViewModel = viewModel()
-    val checkedState = remember { mutableStateOf(false) }
+
+    val settingsData = viewModel.data.collectAsState()
+    val checkedState = remember { mutableStateOf(settingsData.value.spinnerIsVolume) }
+
+    val callback : (SettingsState) -> Unit = { state ->
+        viewModel.spinnerItemSelected(state)
+    }
+
+    Log.d(TAG, "settingsData: ${settingsData.value}")
+
+
 
     Column(modifier = Modifier.fillMaxSize()) {
          Text(
-             text = stringResource(R.string.Settings),
+             text = settingsData.value.toString(),
+//             text = stringResource(R.string.Settings),
              modifier = Modifier.fillMaxWidth(),
              maxLines = 1,
              textAlign = TextAlign.Center,
-             fontSize = 40.sp)
+             fontSize = 10.sp)
 
         MyRow(
-            string = stringResource(id = R.string.table_size),
-            list = listOf("3", "4", "5", "6", "7", "8", "9", "10")
-        ) {type, position ->
-            viewModel.spinnerItemSelected(type, position)
-        }
+            id = R.string.table_size,
+            options = listTableSizes,
+            state = settingsData.value.spinnerTableSize,
+            callback
+        )
         Row(modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically) {
             MyText(
-                string = stringResource(id = R.string.volumetric_field),
+                id = R.string.volume,
                 modifier = Modifier.weight(1f)
             )
             Switch(
-                checked = checkedState.value,
-                onCheckedChange = { checkedState.value = it }
+                checked = settingsData.value.spinnerIsVolume,
+                onCheckedChange = {
+                    checkedState.value = it
+                    viewModel.clickListener(SettingsState.Volume(it))
+                }
             )
         }
         MyRow(
-            string = stringResource(id = R.string.speed),
-            list = listOf("1", "2", "3", "4", "5")
+            id = R.string.speed,
+            options = listSpeed,
+            state = settingsData.value.spinnerSpeed,
+            callback
         )
         MyRow(
-            string = stringResource(id = R.string.voice),
-            list = listOf("1", "2", "3", "4", "5")
+            id = R.string.voice,
+            options = listVoiceArrows,
+            state = settingsData.value.spinnerVoice,
+            callback
         )
         MyRow(
-            string = stringResource(id = R.string.number_of_moves),
-            list = listOf("1", "2", "3", "4", "5")
+            id = R.string.number_of_moves,
+            options = listNumberOfMoves,
+            state = settingsData.value.spinnerNumberOfMoves,
+            callback
         )
         Text(
             text = stringResource(id = R.string.complication),
@@ -79,36 +107,47 @@ fun SettingsScreen() {
 }
 
 @Composable
-fun MyRow(string: String, list: List<String>,
-          onSelect: (type: Int, position: Int) -> Unit) {
+fun MyRow(
+    id: Int,
+    options: List<String>,
+    state: Int,
+    onSelect: (state: SettingsState) -> Unit
+) {
     Row(modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically) {
         MyText(
-            string = string,
+            id = id,
             modifier = Modifier.weight(3f)
         )
         Box(modifier = Modifier.weight(1f)){
-            MySpinner(list, onSelect)
+            MySpinner(id, options, state, onSelect)
         }
     }
 }
 
 @Composable
-fun MyText(string: String, modifier: Modifier) {
+fun MyText(id: Int, modifier: Modifier) {
     Text(
         maxLines = 1,
-        text = string,
+        text = stringResource(id = id),
         color = Color.Blue,
-        fontSize = 25.sp,
+        fontSize = 20.sp,
         modifier = modifier
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MySpinner(options: List<String>, onSelect: (type: Int, position: Int) -> Unit) {
+fun MySpinner(
+    id: Int,
+    options: List<String>,
+    state: Int,
+    onSelect: (state: SettingsState) -> Unit) {
+
+    Log.d(TAG, "MySpinner $id")
+
     var expanded by remember { mutableStateOf(false) }
-    var selectedOptionText by remember { mutableStateOf(options[0]) }
+    var selectedOptionText by remember { mutableStateOf(options[state]) }
 
     ExposedDropdownMenuBox(modifier = Modifier.wrapContentSize(),
         expanded = expanded,
@@ -118,7 +157,7 @@ fun MySpinner(options: List<String>, onSelect: (type: Int, position: Int) -> Uni
     ){
         TextField(
             readOnly = true,
-            value = selectedOptionText,
+            value = options[state],
             onValueChange = { },
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(
@@ -141,8 +180,19 @@ fun MySpinner(options: List<String>, onSelect: (type: Int, position: Int) -> Uni
                     onClick = {
                         selectedOptionText = selectionOption
                         expanded = false
+                        onSelect(
+                            when(id) {
+                                R.string.table_size -> {
+//                                    Log.d(TAG, "MySpinner table_size  position = $position, selectionOption = $selectionOption")
+                                    SettingsState.TableSize(selectionOption.toInt())
+                                }
+                                R.string.speed -> {SettingsState.Speed(selectionOption.toInt())}
+                                R.string.voice -> {SettingsState.Voice(selectionOption)}
+                                R.string.number_of_moves -> {SettingsState.NumberOfMoves(selectionOption.toInt())}
+                                else -> {SettingsState.Speed (0)}
+                            }
 
-                        onSelect(15, 15)
+                        )
                     })
             }
         }

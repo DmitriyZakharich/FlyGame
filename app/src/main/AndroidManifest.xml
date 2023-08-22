@@ -11,12 +11,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FlyGame">
         <activity
-            android:name=".ComposeActivity"
+            android:name=".MainActivity"
             android:exported="false"
             android:label="@string/title_activity_compose"
             android:theme="@style/Theme.FlyGame" />
         <activity
-            android:name=".MainActivity"
+            android:name=".ComposeActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -1,53 +1,55 @@
 package com.example.flygame.settings
 
-import androidx.lifecycle.MutableLiveData
+import android.util.Log
 import androidx.lifecycle.ViewModel
-import com.example.flygame.App
-import com.example.flygame.R
+import androidx.lifecycle.viewModelScope
+import com.example.flygame.settings.models.SettingsData
+import com.example.flygame.settings.models.SettingsViewData
+import com.example.flygame.settings.models.TAG
+import com.example.flygame.settings.models.listVoiceArrows
+import com.example.flygame.settings.viewstate.SettingsState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SettingsViewModel @Inject constructor() : ViewModel() {
+class SettingsViewModel @Inject constructor(
+    private val settingsStore: SettingsStore
+) : ViewModel() {
 
-    private var preferencesWriter: PreferencesWriter = PreferencesWriter()
-    var liveDataTableSize: MutableLiveData<Int> = MutableLiveData()
-    var liveDataIsVolumeTable: MutableLiveData<Boolean> = MutableLiveData()
+    val data: StateFlow<SettingsViewData> = settingsStore
+        .getData()
+        .map{ mapperToView(it) }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = SettingsViewData()
+        )
 
-    //Spinners
-    //TABLE_SIZE_KEY
-    //SPEED_KEY
-    //VOICE_KEY
-    //NUMBER_OF_MOVES_KEY
+    private fun mapperToView(data: SettingsData): SettingsViewData = SettingsViewData(
+        spinnerTableSize = data.tableSize - 3,
+        spinnerIsVolume = data.isVolume,
+        spinnerSpeed = data.speed - 1,
+        spinnerVoice = listVoiceArrows.indexOf(data.voice),
+        spinnerNumberOfMoves = data.numberOfMoves - 3
+    )
 
-    //VOLUME_KEY
-
-    init {
-        start()
-    }
-
-    private fun start() {
-        liveDataIsVolumeTable.value = PreferencesReader.isVolumeTable
-        liveDataTableSize.value = PreferencesReader.tableSize - 3 //3x3 - position №0 in Spinner
-    }
-
-
-    fun spinnerItemSelected(id: Int, position: Int) {
-        when (id) {
-            R.id.spinnerTableSize -> preferencesWriter.putInt(
-                PreferencesWriter.KEY_TABLE_SIZE,
-                position
-            )
+    fun spinnerItemSelected(state: SettingsState) {
+        Log.d(TAG, "SettingsViewModel spinnerItemSelected")
+        viewModelScope.launch {
+            settingsStore.saveToken(state)
         }
     }
 
-    fun clickListener(id: Int, isChecked: Boolean) {
-        when (id) {
-            R.id.switchVolumeTable -> preferencesWriter.putBoolean(
-                PreferencesWriter.KEY_SWITCH_VOLUME_TABLE,
-                isChecked
-            )
-        }
+    fun clickListener(state: SettingsState) {
+        Log.d(TAG, "SettingsViewModel clickListener")
 
+        viewModelScope.launch {
+            settingsStore.saveToken(state)
+        }
     }
 }
