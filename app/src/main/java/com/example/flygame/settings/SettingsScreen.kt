@@ -39,7 +39,6 @@ import com.example.flygame.settings.viewstate.SettingsState
 @Composable
 fun SettingsScreen() {
     val viewModel: SettingsViewModel = viewModel()
-
     val settingsData = viewModel.data.collectAsState()
     val checkedState = remember { mutableStateOf(settingsData.value.spinnerIsVolume) }
 
@@ -47,14 +46,9 @@ fun SettingsScreen() {
         viewModel.spinnerItemSelected(state)
     }
 
-    Log.d(TAG, "settingsData: ${settingsData.value}")
-
-
-
     Column(modifier = Modifier.fillMaxSize()) {
          Text(
-             text = settingsData.value.toString(),
-//             text = stringResource(R.string.Settings),
+             text = stringResource(R.string.Settings),
              modifier = Modifier.fillMaxWidth(),
              maxLines = 1,
              textAlign = TextAlign.Center,
@@ -182,14 +176,11 @@ fun MySpinner(
                         expanded = false
                         onSelect(
                             when(id) {
-                                R.string.table_size -> {
-//                                    Log.d(TAG, "MySpinner table_size  position = $position, selectionOption = $selectionOption")
-                                    SettingsState.TableSize(selectionOption.toInt())
-                                }
-                                R.string.speed -> {SettingsState.Speed(selectionOption.toInt())}
-                                R.string.voice -> {SettingsState.Voice(selectionOption)}
-                                R.string.number_of_moves -> {SettingsState.NumberOfMoves(selectionOption.toInt())}
-                                else -> {SettingsState.Speed (0)}
+                                R.string.table_size -> { SettingsState.TableSize(selectionOption.toInt()) }
+                                R.string.speed -> { SettingsState.Speed(selectionOption.toInt()) }
+                                R.string.voice -> { SettingsState.Voice(selectionOption) }
+                                R.string.number_of_moves -> { SettingsState.NumberOfMoves(selectionOption.toInt()) }
+                                else -> { SettingsState.Speed (0) }
                             }
 
                         )

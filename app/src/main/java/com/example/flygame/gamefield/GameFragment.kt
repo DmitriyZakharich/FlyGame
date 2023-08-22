@@ -46,16 +46,16 @@ class GameFragment : Fragment(), View.OnClickListener {
         viewModel?.getLiveDataCoordinates()?.observe(requireActivity(),
             { println(it) })
 
-        viewModel?.getLiveDataGameProcess()?.observe(requireActivity(),
-            {
-                if (it) {
-                    binding.buttonStartGame.visibility = View.INVISIBLE
-                    binding.progressBar.visibility = View.VISIBLE
-                } else {
-                    binding.buttonStartGame.visibility = View.VISIBLE
-                    binding.progressBar.visibility = View.INVISIBLE
-                }
-            })
+        viewModel?.getLiveDataGameProcess()?.observe(requireActivity()
+        ) {
+            if (it) {
+                binding.buttonStartGame.visibility = View.INVISIBLE
+                binding.progressBar.visibility = View.VISIBLE
+            } else {
+                binding.buttonStartGame.visibility = View.VISIBLE
+                binding.progressBar.visibility = View.INVISIBLE
+            }
+        }
     }
 
     private fun initViews() {

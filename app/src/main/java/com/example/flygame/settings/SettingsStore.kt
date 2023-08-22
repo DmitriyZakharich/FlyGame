@@ -41,10 +41,6 @@ class SettingsStore @Inject constructor(@ApplicationContext private val context:
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore("game_settings")
     }
 
-    /**Не нужно вытягивать данные по одному
-     * getData Нужна для SettingsScreen только как вытащить все данные(создать Модель)
-     * В игре так же лучше вытягивать модеть целиков
-    */
     fun getData(): Flow<SettingsData> = context.dataStore.data.map { preferences ->
         Log.d(TAG, "SettingsStore getData")
 
@@ -58,7 +54,6 @@ class SettingsStore @Inject constructor(@ApplicationContext private val context:
     }
 
     suspend fun saveToken(state: SettingsState) {
-        Log.d(TAG, "SettingsStore saveToken")
         context.dataStore.edit { preferences ->
             when (state) {
                 is SettingsState.TableSize -> { preferences[state.key] = state.data }
@@ -70,39 +65,3 @@ class SettingsStore @Inject constructor(@ApplicationContext private val context:
         }
     }
 }
-
-//@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
-//@Composable
-//private fun Main() {
-//    val context = LocalContext.current
-//    val keyboardController = LocalSoftwareKeyboardController.current
-//    val tokenValue = remember {
-//        mutableStateOf(TextFieldValue())
-//    }
-//    val store = SettingsStore(context)
-//    val tokenText = store.getAccessToken.collectAsState(initial = "")
-//
-//    Column(
-//        modifier = Modifier.clickable { keyboardController?.hide() },
-//        horizontalAlignment = Alignment.CenterHorizontally
-//    ) {
-//
-//
-//        Text(text = tokenText.value)
-//
-//        TextField(
-//            value = tokenValue.value,
-//            onValueChange = { tokenValue.value = it },
-//        )
-//
-//        Button(
-//            onClick = {
-//                CoroutineScope(Dispatchers.IO).launch {
-//                    store.saveToken(tokenValue.value.text)
-//                }
-//            }
-//        ) {
-//            Text(text = "Update Token")
-//        }
-//    }
-//}
