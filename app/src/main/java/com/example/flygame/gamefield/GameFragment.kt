@@ -43,10 +43,10 @@ class GameFragment : Fragment(), View.OnClickListener {
     }
 
     private fun subscribeLiveData() {
-        viewModel?.getLiveDataCoordinates()?.observe(requireActivity(),
-            { println(it) })
+        viewModel?.liveDataCoordinates?.observe(requireActivity()
+        ) { println(it) }
 
-        viewModel?.getLiveDataGameProcess()?.observe(requireActivity()
+        viewModel?.liveDataGameProcess?.observe(requireActivity()
         ) {
             if (it) {
                 binding.buttonStartGame.visibility = View.INVISIBLE

@@ -1,5 +1,6 @@
 package com.example.flygame.gamefield
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -24,6 +25,12 @@ import com.example.flygame.settings.models.SettingsData
 
 @Composable
 fun GameScreen() {
+    Column(modifier = Modifier.fillMaxSize()) {
+//        Table(SettingsStore())
+
+
+
+    }
 
 }
 
@@ -45,6 +52,8 @@ fun FlatField(settings: SettingsData) {
 
     val screenHeight = configuration.screenHeightDp.dp
     val screenWidth = configuration.screenWidthDp.dp
+    Log.d("11111111111111TAG", "screenWidth: $screenWidth")
+    Log.d("11111111111111TAG", "screenHeight: $screenHeight")
 
     Column(
         modifier = Modifier
@@ -52,17 +61,16 @@ fun FlatField(settings: SettingsData) {
             .height(screenWidth),
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
-        for (rowCount in 1..settings.tableSize) {
+        for (rowCount in 0 until settings.tableSize) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                for (cellCount in 1..settings.tableSize) {
-
-                    IconButton(
-                        onClick = {},
+                for (cellCount in 0 until settings.tableSize) {
+                    MyCell(
+                        Pair(cellCount, rowCount),
                         modifier = Modifier
                             .fillMaxSize()
                             .weight(1f)
@@ -71,16 +79,24 @@ fun FlatField(settings: SettingsData) {
                                 color = Color.Blue,
                                 shape = AbsoluteCutCornerShape(2)
                             )
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.icon_fly),
-                            contentDescription = "icon",
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
+                    )
                 }
             }
         }
+    }
+}
+
+@Composable
+fun MyCell(id: Pair<Int, Int>, modifier: Modifier) {
+    IconButton(
+        onClick = {},
+        modifier = modifier
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.icon_fly),
+            contentDescription = "icon",
+            modifier = Modifier.fillMaxSize()
+        )
     }
 }
 
