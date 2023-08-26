@@ -22,6 +22,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val settingsStore: SettingsStore
+
 ) : ViewModel() {
 
     val data: StateFlow<SettingsViewData> = settingsStore

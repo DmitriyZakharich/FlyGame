@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.AbsoluteCutCornerShape
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
@@ -21,6 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.flygame.R
 import com.example.flygame.settings.SettingsStore
+import com.example.flygame.settings.models.Coordinates
 import com.example.flygame.settings.models.SettingsData
 
 @Composable
@@ -32,22 +34,31 @@ fun GameScreen() {
 }
 
 @Composable
-fun Table(settingsStore: SettingsStore, answer: (id: Int) -> Unit = {}) {
+fun Table(
+    settingsStore: SettingsStore,
+    answer: (id: Int) -> Unit = {},
+    coordinatesFly: Coordinates
+) {
     val settingsState = settingsStore.getData().collectAsState(SettingsData())
     val settings = settingsState.value
 
     if (!settings.isVolume)
-        FlatField(settings, answer)
+        FlatField(settings, answer, coordinatesFly)
     else
         VolumetricField(settings)
 }
 
 @Composable
-fun FlatField(settings: SettingsData, answer: (id: Int) -> Unit = {}) {
+fun FlatField(
+    settings: SettingsData,
+    answer: (id: Int) -> Unit = {},
+    coordinatesFly: Coordinates
+) {
 
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
     val screenWidth = configuration.screenWidthDp.dp
+
 
 
     Column(
@@ -65,7 +76,7 @@ fun FlatField(settings: SettingsData, answer: (id: Int) -> Unit = {}) {
             ) {
                 for (cellCount in 0 until settings.tableSize) {
                     MyCell(
-                        Pair(cellCount, rowCount),
+                        id = Coordinates(horizontalX = cellCount, verticalY = rowCount),
                         modifier = Modifier
                             .fillMaxSize()
                             .weight(1f)
@@ -74,7 +85,8 @@ fun FlatField(settings: SettingsData, answer: (id: Int) -> Unit = {}) {
                                 color = Color.Blue,
                                 shape = AbsoluteCutCornerShape(2)
                             ),
-                        answer
+                        answer,
+                        coordinatesFly
                     )
                 }
             }
@@ -83,16 +95,37 @@ fun FlatField(settings: SettingsData, answer: (id: Int) -> Unit = {}) {
 }
 
 @Composable
-fun MyCell(id: Pair<Int, Int>, modifier: Modifier, answer: (id: Int) -> Unit = {}) {
+fun MyCell(
+    id: Coordinates,
+    modifier: Modifier,
+    answer: (id: Int) -> Unit = {},
+    coordinatesFly: Coordinates
+) {
     IconButton(
-        onClick = {answer("${id.second}${id.first}".toInt())},  //verticalY, horizontalX
+        onClick = {
+            if (id == coordinatesFly)
+                Log.d("fffffffffffTAG", "ПОБЕДА")
+        },  //verticalY, horizontalX
         modifier = modifier
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.icon_fly),
-            contentDescription = "icon",
-            modifier = Modifier.fillMaxSize()
-        )
+
+//        val coordinatesFly = state.collectAsState()
+//        val state2 by remember { state }
+//        val coordinatesState = state2
+
+        Log.d("fffffffffffTAG", "MyCell coordinatesFly = $coordinatesFly")
+        Log.d("fffffffffffTAG", "MyCell id = $id")
+
+        if (id == coordinatesFly) {
+            Log.d("fffffffffffTAG", "Муха тут")
+
+            Image(
+                painter = painterResource(id = R.drawable.icon_fly),
+                contentDescription = "icon",
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+        Text(text = "${id.horizontalX}${id.verticalY}${id.volumeZ}")
     }
 }
 
@@ -104,5 +137,5 @@ fun VolumetricField(settings: SettingsData) {
 @Preview
 @Composable
 fun PreviewFlatField() {
-    FlatField(settings = SettingsData())
+//    FlatField(settings = SettingsData(), stateCoordinatesFly = mutableStateOf(CoordinatesFly()))
 }

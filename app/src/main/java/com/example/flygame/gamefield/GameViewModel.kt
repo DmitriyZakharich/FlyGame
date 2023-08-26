@@ -2,16 +2,16 @@ package com.example.flygame.gamefield
 
 import android.speech.tts.TextToSpeech
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.flygame.App
 import com.example.flygame.settings.SettingsStore
-import com.example.flygame.settings.models.CoordinatesFly
+import com.example.flygame.settings.models.Coordinates
 import com.example.flygame.settings.models.SettingsData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import java.util.*
 import javax.inject.Inject
 
@@ -20,40 +20,43 @@ class GameViewModel @Inject constructor(
     private val settingsStore: SettingsStore
 ) : ViewModel(), TextToSpeech.OnInitListener {
 
-    private val _liveDataCoordinatesFly: MutableLiveData<CoordinatesFly> = MutableLiveData()
-    val liveDataCoordinates: LiveData<CoordinatesFly> = _liveDataCoordinatesFly
+    private val _stateCoordinatesFly: MutableStateFlow<Coordinates> = MutableStateFlow(Coordinates())
+    val stateCoordinatesFly: StateFlow<Coordinates> = _stateCoordinatesFly
 
-    private val _liveDataGameProcess: MutableLiveData<Boolean> = MutableLiveData()
-    val liveDataGameProcess: LiveData<Boolean> = _liveDataGameProcess
+    private val _stateGameProcess: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val stateGameProcess: StateFlow<Boolean> = _stateGameProcess
 
     private val textToSpeech: TextToSpeech = TextToSpeech(App.appContext, this)
-//    private val tableSize = PreferencesReader.tableSize         //Начало с 0 до n (не включая)
-    private val coordinatesFly = CoordinatesFly()
+    private var coordinatesFly = Coordinates()
     private var job: Job? = null
 
-//    init {
-//        settingInitialCoordinates(it)
-//    }
+    init {
+        viewModelScope.launch {
+            settingsStore.getData().collect {
+                settingInitialCoordinates(it)
+                job?.cancel()
+            }
+        }
+    }
 
-    private fun settingInitialCoordinates(settingsData: SettingsData) {
-
-        val center=  settingsData.tableSize / 2
-
-        coordinatesFly.volumeZ = if (settingsData.isVolume) center else 0
-        coordinatesFly.verticalY = center
-        coordinatesFly.horizontalX = center
-        _liveDataCoordinatesFly.value = coordinatesFly
-
-        Log.d("tagTag123321","settingInitialCoordinates")
-        Log.d("tagTag123321","start  z = ${coordinatesFly.volumeZ},  y = ${coordinatesFly.verticalY}, x = ${coordinatesFly.horizontalX}")
+    private suspend fun settingInitialCoordinates(settingsData: SettingsData) {
+        val center = settingsData.tableSize / 2
+        coordinatesFly = Coordinates(
+            horizontalX = center,
+            verticalY = center,
+            volumeZ = if (settingsData.isVolume) center else -1
+        )
+        _stateCoordinatesFly.emit(coordinatesFly)
     }
 
     fun startGame() {
+        Log.d("fffffffffffTAG", "startGame")
+
         job = viewModelScope.launch {
-            Log.d("tagTag123321","launch")
+            Log.d("tagTag123321", "launch")
 
             settingsStore.getData().collect {
-                Log.d("tagTag123321","collect")
+                Log.d("tagTag123321", "collect")
 
                 setLiveDataGameProcess(true)
                 settingInitialCoordinates(it)
@@ -64,26 +67,20 @@ class GameViewModel @Inject constructor(
 //            onResult(result) // onResult is called on the main thread
         }
 
+
     }
 
-    private fun setLiveDataGameProcess(inProcess: Boolean) {
-        _liveDataGameProcess.postValue(inProcess)
+    private suspend fun setLiveDataGameProcess(inProcess: Boolean) {
+        _stateGameProcess.emit(inProcess)
     }
 
     private suspend fun gameProcess(tableSize: Int, numberOfMoves: Int, isVolume: Boolean) {
-//        viewModelScope.launch {
+        for (i in 1..numberOfMoves) {
+//            Log.d("111111111tag", "for $i")
 
-//            var count = 0
-//            var notification = ""
-//            var previousMove = Pair("", 0)
-
-
-            for (i in 1..numberOfMoves) {
-                Log.d("111111111tag","for $i")
-
-                _liveDataCoordinatesFly.postValue(GameMoves.getMove(coordinatesFly, tableSize, isVolume))
-            }
-//        }
+            coordinatesFly = GameMoves.getMove(coordinatesFly, tableSize, isVolume)
+            _stateCoordinatesFly.emit(coordinatesFly)
+        }
     }
 
     fun cellClickListener(id: Int) {
@@ -93,23 +90,25 @@ class GameViewModel @Inject constructor(
             in 100..999 ->
                 if ("$id"[0].digitToInt() == coordinatesFly.volumeZ
                     && "$id"[1].digitToInt() == coordinatesFly.verticalY
-                    && "$id"[2].digitToInt() == coordinatesFly.horizontalX)
+                    && "$id"[2].digitToInt() == coordinatesFly.horizontalX
+                )
                     Log.d("tagTag123321", "---------Ура--------")
 
             in 10..99 ->
                 if (coordinatesFly.volumeZ == 0
                     && "$id"[0].digitToInt() == coordinatesFly.verticalY
-                    && "$id"[1].digitToInt() == coordinatesFly.horizontalX)
+                    && "$id"[1].digitToInt() == coordinatesFly.horizontalX
+                )
                     Log.d("tagTag123321", "---------Ура--------")
 
             in 0..9 ->
                 if (coordinatesFly.volumeZ == 0
                     && coordinatesFly.verticalY == 0
-                    && "$id"[0].digitToInt() == coordinatesFly.horizontalX)
+                    && "$id"[0].digitToInt() == coordinatesFly.horizontalX
+                )
                     Log.d("tagTag123321", "---------Ура--------")
         }
     }
-
 
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {

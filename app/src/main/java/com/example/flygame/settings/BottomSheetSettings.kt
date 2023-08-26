@@ -8,22 +8,20 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.currentCompositionLocalContext
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.flygame.gamefield.FlatField
 import com.example.flygame.gamefield.Table
-import com.example.flygame.settings.models.SettingsData
-import com.example.flygame.settings.viewstate.SettingsState
+import com.example.flygame.settings.models.Coordinates
 import kotlinx.coroutines.launch
 
 
 //@OptIn(ExperimentalMaterial3Api::class)
 @OptIn(ExperimentalMaterialApi::class)
-@Preview
 @Composable
-fun BottomSheetSettings(answer: (id: Int) -> Unit = {}) {
+fun BottomSheetSettings(
+    answer: (id: Int) -> Unit = {},
+    coordinatesFly: Coordinates
+) {
 
     val contextForToast = LocalContext.current.applicationContext
 
@@ -70,7 +68,7 @@ fun BottomSheetSettings(answer: (id: Int) -> Unit = {}) {
         /**Находится здесь, потому content BottomSheet занимает всё доступное пространство
          * и перекрывает поле.
          * */
-        Table(settingsStore = SettingsStore(LocalContext.current), answer)
+        Table(settingsStore = SettingsStore(LocalContext.current), answer, coordinatesFly)
     }
 }
 

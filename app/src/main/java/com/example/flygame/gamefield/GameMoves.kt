@@ -3,7 +3,7 @@ package com.example.flygame.gamefield
 import android.speech.tts.TextToSpeech
 import android.util.Log
 import com.example.flygame.App
-import com.example.flygame.settings.models.CoordinatesFly
+import com.example.flygame.settings.models.Coordinates
 import kotlinx.coroutines.delay
 import java.util.Locale
 
@@ -15,10 +15,15 @@ object GameMoves: TextToSpeech.OnInitListener {
     private val textToSpeech: TextToSpeech = TextToSpeech(App.appContext, this)
 
 
-    suspend fun getMove(coordinatesFly: CoordinatesFly, tableSize: Int, isVolume: Boolean): CoordinatesFly {
-
+    suspend fun getMove(coordinatesFly: Coordinates, tableSize: Int, isVolume: Boolean): Coordinates {
         var notification = ""
         var successfulMove = false
+
+        Log.d("111111111tag","oldCoordinatesFly = $coordinatesFly")
+
+
+        var newCoordinates = Coordinates()
+
         while (!successfulMove){
 
             val moveDirection = getMovePlane(isVolume)
@@ -30,24 +35,37 @@ object GameMoves: TextToSpeech.OnInitListener {
             previousMove = Pair(moveDirection, move)
 
 
-
-
             when (moveDirection) {
                 "X" -> if ((coordinatesFly.horizontalX + move) in 0 until tableSize) {
-                    coordinatesFly.horizontalX += move
+
+                    newCoordinates = Coordinates(
+                        horizontalX = coordinatesFly.horizontalX + move,
+                        verticalY = coordinatesFly.verticalY,
+                        volumeZ = coordinatesFly.volumeZ)
+
                     notification = if (move < 0) "Влево" else "Вправо"
                     successfulMove = true
                 }
 
                 "Y" -> if ((coordinatesFly.verticalY + move) in 0 until tableSize) {
-                    coordinatesFly.verticalY += move
+
+                    newCoordinates = Coordinates(
+                        horizontalX = coordinatesFly.horizontalX,
+                        verticalY = coordinatesFly.verticalY + move,
+                        volumeZ = coordinatesFly.volumeZ)
+
                     notification = if (move < 0) "Вверх" else "Вниз"
                     successfulMove = true
                 }
 
 
                 "Z" -> if ((coordinatesFly.volumeZ + move) in 0 until tableSize) {
-                    coordinatesFly.volumeZ += move
+
+                    newCoordinates = Coordinates(
+                        horizontalX = coordinatesFly.horizontalX,
+                        verticalY = coordinatesFly.verticalY,
+                        volumeZ = coordinatesFly.volumeZ + move)
+
                     notification = if (move < 0) "Вперед" else "Назад"
                     successfulMove = true
                 }
@@ -55,12 +73,14 @@ object GameMoves: TextToSpeech.OnInitListener {
         }
 
 //        Log.d("111111111tag","moveDirection = $moveDirection")
-        Log.d("111111111tag","coordinatesFly = $coordinatesFly")
-        Log.d("111111111tag","notification = $notification")
+//        Log.d("111111111tag","newCoordinates = $newCoordinates")
+//        Log.d("111111111tag","notification = $notification")
+        Log.d("fffffffffffTAG", "notification = $notification")
+
 
         announcement(notification)
         delay(1500L)
-        return coordinatesFly
+        return newCoordinates
     }
 
     private fun announcement(notification: String) {

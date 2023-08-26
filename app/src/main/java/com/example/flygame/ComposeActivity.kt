@@ -20,6 +20,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -30,7 +32,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.flygame.gamefield.GameViewModel
 import com.example.flygame.settings.BottomSheetSettings
-import com.example.flygame.settings.SettingsScreen
 import com.example.flygame.ui.theme.FlyGameTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -54,12 +55,11 @@ class ComposeActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(name: String, modifier: Modifier = Modifier) {
-
     val scope = rememberCoroutineScope()
-
     val gameViewModel: GameViewModel = viewModel()
-
     val answer: (Int) -> Unit = { id -> gameViewModel.cellClickListener(id) }
+
+    val coordinatesFly by gameViewModel.stateCoordinatesFly.collectAsState()
 
     Scaffold(
         topBar = {
@@ -102,7 +102,7 @@ fun MainScreen(name: String, modifier: Modifier = Modifier) {
                     .fillMaxSize()
                     .padding(innerPadding)
                     .background(Color.Red)) {
-                BottomSheetSettings(answer)
+                BottomSheetSettings(answer, coordinatesFly)
 
             }
         }

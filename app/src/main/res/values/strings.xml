@@ -28,5 +28,6 @@
     <string name="voice">Голос</string>
     <string name="number_of_moves">Количество ходов</string>
     <string name="complication">Усложнения</string>
+    <string name="hide_field">Скрывать поле</string>
 </resources>
 

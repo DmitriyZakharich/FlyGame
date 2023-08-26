@@ -23,8 +23,10 @@ val listNumberOfMoves = listOf("3", "5", "7", "10", "15", "20")
 
 val TAG = "3232321515123e33"
 
-data class CoordinatesFly(
-    var horizontalX: Int = -1,
-    var verticalY: Int = -1,
-    var volumeZ: Int = -1
-)
+data class Coordinates(
+    val horizontalX: Int = -1,
+    val verticalY: Int = -1,
+    val volumeZ: Int = -1
+) {
+//    override fun equals(other: Any?) = false
+}

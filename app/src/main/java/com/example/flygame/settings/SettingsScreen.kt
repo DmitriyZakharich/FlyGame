@@ -92,6 +92,11 @@ fun SettingsScreen() {
             callback
         )
         Text(
+            text = stringResource(id = R.string.hide_field),
+            color = Color.Blue,
+            fontSize = 30.sp
+        )
+        Text(
             text = stringResource(id = R.string.complication),
             color = Color.Blue,
             fontSize = 30.sp
@@ -181,7 +186,6 @@ fun MySpinner(
                                 R.string.number_of_moves -> { SettingsState.NumberOfMoves(selectionOption.toInt()) }
                                 else -> { SettingsState.Speed (0) }
                             }
-
                         )
                     })
             }

@@ -43,19 +43,19 @@ class GameFragment : Fragment(), View.OnClickListener {
     }
 
     private fun subscribeLiveData() {
-        viewModel?.liveDataCoordinates?.observe(requireActivity()
-        ) { println(it) }
-
-        viewModel?.liveDataGameProcess?.observe(requireActivity()
-        ) {
-            if (it) {
-                binding.buttonStartGame.visibility = View.INVISIBLE
-                binding.progressBar.visibility = View.VISIBLE
-            } else {
-                binding.buttonStartGame.visibility = View.VISIBLE
-                binding.progressBar.visibility = View.INVISIBLE
-            }
-        }
+//        viewModel?.stateCoordinatesFly?.observe(requireActivity()
+//        ) { println(it) }
+//
+//        viewModel?.liveDataGameProcess?.observe(requireActivity()
+//        ) {
+//            if (it) {
+//                binding.buttonStartGame.visibility = View.INVISIBLE
+//                binding.progressBar.visibility = View.VISIBLE
+//            } else {
+//                binding.buttonStartGame.visibility = View.VISIBLE
+//                binding.progressBar.visibility = View.INVISIBLE
+//            }
+//        }
     }
 
     private fun initViews() {
