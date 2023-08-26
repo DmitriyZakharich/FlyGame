@@ -6,6 +6,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.flygame.settings.models.SettingsData
 import com.example.flygame.settings.models.SettingsViewData
 import com.example.flygame.settings.models.TAG
+import com.example.flygame.settings.models.listNumberOfMoves
+import com.example.flygame.settings.models.listSpeed
+import com.example.flygame.settings.models.listTableSizes
 import com.example.flygame.settings.models.listVoiceArrows
 import com.example.flygame.settings.viewstate.SettingsState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -31,11 +34,11 @@ class SettingsViewModel @Inject constructor(
         )
 
     private fun mapperToView(data: SettingsData): SettingsViewData = SettingsViewData(
-        spinnerTableSize = data.tableSize - 3,
+        spinnerTableSize = listTableSizes.indexOf(data.tableSize.toString()),
         spinnerIsVolume = data.isVolume,
-        spinnerSpeed = data.speed - 1,
+        spinnerSpeed = listSpeed.indexOf(data.speed.toString()),
         spinnerVoice = listVoiceArrows.indexOf(data.voice),
-        spinnerNumberOfMoves = data.numberOfMoves - 3
+        spinnerNumberOfMoves = listNumberOfMoves.indexOf(data.numberOfMoves.toString())
     )
 
     fun spinnerItemSelected(state: SettingsState) {
@@ -46,8 +49,6 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun clickListener(state: SettingsState) {
-        Log.d(TAG, "SettingsViewModel clickListener")
-
         viewModelScope.launch {
             settingsStore.saveToken(state)
         }

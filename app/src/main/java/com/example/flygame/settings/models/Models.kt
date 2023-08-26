@@ -1,8 +1,7 @@
 package com.example.flygame.settings.models
 
 data class SettingsData(
-    val tableSize: Int = 9,
-
+    val tableSize: Int = listTableSizes[0].toInt(),
     val isVolume: Boolean = false,
     val speed: Int = 5,
     val voice: String = "Voice",
@@ -20,6 +19,12 @@ data class SettingsViewData(
 val listTableSizes = listOf("3", "5", "7", "9")
 val listSpeed = listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "10")
 val listVoiceArrows = listOf("Voice", "Arrows")
-val listNumberOfMoves = listOf("3", "5", "7", "10", "15", "20", "25")
+val listNumberOfMoves = listOf("3", "5", "7", "10", "15", "20")
 
 val TAG = "3232321515123e33"
+
+data class CoordinatesFly(
+    var horizontalX: Int = -1,
+    var verticalY: Int = -1,
+    var volumeZ: Int = -1
+)

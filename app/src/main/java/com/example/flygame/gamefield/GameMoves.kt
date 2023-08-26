@@ -3,7 +3,7 @@ package com.example.flygame.gamefield
 import android.speech.tts.TextToSpeech
 import android.util.Log
 import com.example.flygame.App
-import com.example.flygame.settings.PreferencesReader
+import com.example.flygame.settings.models.CoordinatesFly
 import kotlinx.coroutines.delay
 import java.util.Locale
 
@@ -11,21 +11,17 @@ object GameMoves: TextToSpeech.OnInitListener {
 
     private val moveDirection = listOf("X", "Y", "Z")
     private val plusOrMinus = listOf(-1, 1)
-    private var notification = ""
     private var previousMove = Pair("", 0)
     private val textToSpeech: TextToSpeech = TextToSpeech(App.appContext, this)
 
 
+    suspend fun getMove(coordinatesFly: CoordinatesFly, tableSize: Int, isVolume: Boolean): CoordinatesFly {
 
-    suspend fun getMove(coordinateHorizontalX: Int, coordinateVerticalY: Int, coordinateVolumeZ: Int, tableSize: Int): Triple<Int, Int,Int> {
-        var newX = coordinateHorizontalX
-        var newY = coordinateVerticalY
-        var newZ = coordinateVolumeZ
-
+        var notification = ""
         var successfulMove = false
         while (!successfulMove){
 
-            val moveDirection = getMovePlane()
+            val moveDirection = getMovePlane(isVolume)
             val move = getPlusOrMinus()
 
             if (previousMove == Pair(moveDirection, -move))
@@ -33,45 +29,53 @@ object GameMoves: TextToSpeech.OnInitListener {
 
             previousMove = Pair(moveDirection, move)
 
+
+
+
             when (moveDirection) {
-                "X" -> if ((coordinateHorizontalX + move) in 0 until tableSize) {
-                    newX += move
+                "X" -> if ((coordinatesFly.horizontalX + move) in 0 until tableSize) {
+                    coordinatesFly.horizontalX += move
                     notification = if (move < 0) "Влево" else "Вправо"
                     successfulMove = true
                 }
 
-                "Y" -> if ((coordinateVerticalY + move) in 0 until tableSize) {
-                    newY += move
+                "Y" -> if ((coordinatesFly.verticalY + move) in 0 until tableSize) {
+                    coordinatesFly.verticalY += move
                     notification = if (move < 0) "Вверх" else "Вниз"
                     successfulMove = true
                 }
 
 
-                "Z" -> if ((coordinateVolumeZ + move) in 0 until tableSize) {
-                    newZ += move
+                "Z" -> if ((coordinatesFly.volumeZ + move) in 0 until tableSize) {
+                    coordinatesFly.volumeZ += move
                     notification = if (move < 0) "Вперед" else "Назад"
                     successfulMove = true
                 }
             }
-            successfulMove = true
-            delay(1500L)
-
-            textToSpeech.language = Locale("ru")
-            textToSpeech.speak(notification, TextToSpeech.QUEUE_FLUSH, null, "")
         }
-        return Triple(newX, newY, newZ)
+
+//        Log.d("111111111tag","moveDirection = $moveDirection")
+        Log.d("111111111tag","coordinatesFly = $coordinatesFly")
+        Log.d("111111111tag","notification = $notification")
+
+        announcement(notification)
+        delay(1500L)
+        return coordinatesFly
     }
 
-    private fun getMovePlane(): String {
-        val n = if (!PreferencesReader.isVolumeTable) 1 else 2
-        val random = (0 until n).random()
+    private fun announcement(notification: String) {
+        textToSpeech.language = Locale("ru")
+        textToSpeech.speak(notification, TextToSpeech.QUEUE_FLUSH, null, "")
+    }
+
+    private fun getMovePlane(isVolume: Boolean): String {
+        val n = if (isVolume) 2 else 1
+        val random = (0 .. n).random()
         return moveDirection[random]
     }
 
-    private fun getPlusOrMinus(): Int {
-        val random = (0 ..1).random()
-        return plusOrMinus[random]
-    }
+    private fun getPlusOrMinus(): Int = plusOrMinus.random()
+
 
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {

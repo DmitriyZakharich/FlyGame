@@ -27,33 +27,28 @@ import com.example.flygame.settings.models.SettingsData
 fun GameScreen() {
     Column(modifier = Modifier.fillMaxSize()) {
 //        Table(SettingsStore())
-
-
-
     }
 
 }
 
 @Composable
-fun Table(settingsStore: SettingsStore) {
+fun Table(settingsStore: SettingsStore, answer: (id: Int) -> Unit = {}) {
     val settingsState = settingsStore.getData().collectAsState(SettingsData())
     val settings = settingsState.value
 
     if (!settings.isVolume)
-        FlatField(settings)
+        FlatField(settings, answer)
     else
         VolumetricField(settings)
 }
 
 @Composable
-fun FlatField(settings: SettingsData) {
+fun FlatField(settings: SettingsData, answer: (id: Int) -> Unit = {}) {
 
     val configuration = LocalConfiguration.current
-
     val screenHeight = configuration.screenHeightDp.dp
     val screenWidth = configuration.screenWidthDp.dp
-    Log.d("11111111111111TAG", "screenWidth: $screenWidth")
-    Log.d("11111111111111TAG", "screenHeight: $screenHeight")
+
 
     Column(
         modifier = Modifier
@@ -78,7 +73,8 @@ fun FlatField(settings: SettingsData) {
                                 width = 1.dp,
                                 color = Color.Blue,
                                 shape = AbsoluteCutCornerShape(2)
-                            )
+                            ),
+                        answer
                     )
                 }
             }
@@ -87,9 +83,9 @@ fun FlatField(settings: SettingsData) {
 }
 
 @Composable
-fun MyCell(id: Pair<Int, Int>, modifier: Modifier) {
+fun MyCell(id: Pair<Int, Int>, modifier: Modifier, answer: (id: Int) -> Unit = {}) {
     IconButton(
-        onClick = {},
+        onClick = {answer("${id.second}${id.first}".toInt())},  //verticalY, horizontalX
         modifier = modifier
     ) {
         Image(

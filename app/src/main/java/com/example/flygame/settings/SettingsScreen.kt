@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.DropdownMenuItem
@@ -46,7 +45,7 @@ fun SettingsScreen() {
         viewModel.spinnerItemSelected(state)
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier.fillMaxWidth()) {
          Text(
              text = stringResource(R.string.Settings),
              modifier = Modifier.fillMaxWidth(),
@@ -138,8 +137,6 @@ fun MySpinner(
     state: Int,
     onSelect: (state: SettingsState) -> Unit) {
 
-    Log.d(TAG, "MySpinner $id")
-
     var expanded by remember { mutableStateOf(false) }
     var selectedOptionText by remember { mutableStateOf(options[state]) }
 
@@ -149,6 +146,8 @@ fun MySpinner(
             expanded = !expanded
         }
     ){
+        Log.d(TAG, "options: $options")
+        Log.d(TAG, "state: $state")
         TextField(
             readOnly = true,
             value = options[state],

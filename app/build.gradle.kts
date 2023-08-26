@@ -77,6 +77,16 @@ dependencies {
     implementation ("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation ("androidx.legacy:legacy-support-v4:1.0.0")
 
+    val composeVersion = "1.5.0"
+
+    //material
+    implementation ("androidx.compose.material:material-icons-extended:$composeVersion")
+    implementation ("androidx.compose.ui:ui:$composeVersion")
+    implementation ("androidx.compose.material:material:$composeVersion")
+    implementation ("androidx.compose.ui:ui-tooling-preview:$composeVersion")
+
+
+
     //Navigation
     implementation ("androidx.navigation:navigation-fragment-ktx:2.7.0")
     implementation ("androidx.navigation:navigation-ui-ktx:2.7.0")

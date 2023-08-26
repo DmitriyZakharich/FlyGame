@@ -27,6 +27,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.example.flygame.settings.models.SettingsData
 import com.example.flygame.settings.models.TAG
+import com.example.flygame.settings.models.listTableSizes
 import com.example.flygame.settings.viewstate.SettingsState
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -45,11 +46,11 @@ class SettingsStore @Inject constructor(@ApplicationContext private val context:
         Log.d(TAG, "SettingsStore getData")
 
         SettingsData(
-            tableSize = preferences[intPreferencesKey("table_size_key")] ?: 0,
+            tableSize = preferences[intPreferencesKey("table_size_key")] ?: 3,
             isVolume = preferences[booleanPreferencesKey("volume_key")] ?: false,
-            speed = preferences[intPreferencesKey("speed_key")] ?: 0,
-            voice = preferences[stringPreferencesKey("voice_key")] ?: "",
-            numberOfMoves = preferences[intPreferencesKey("number_of_moves_key")] ?: 0,
+            speed = preferences[intPreferencesKey("speed_key")] ?: 5,
+            voice = preferences[stringPreferencesKey("voice_key")] ?: "Voice",
+            numberOfMoves = preferences[intPreferencesKey("number_of_moves_key")] ?: 5,
         )
     }
 
