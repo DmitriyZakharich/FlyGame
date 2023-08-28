@@ -27,6 +27,4 @@ data class Coordinates(
     val horizontalX: Int = -1,
     val verticalY: Int = -1,
     val volumeZ: Int = -1
-) {
-//    override fun equals(other: Any?) = false
-}
+)
