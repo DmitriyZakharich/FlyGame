@@ -38,7 +38,9 @@ fun MyStack() {
 
     val list = listOf(1, 2, 3, 4, 5)
 //    val listOffset = remember { mutableStateListOf<Int>() }
-    val listSettingsItem = remember { mutableStateListOf<SettingsItem>() }
+    val listSettingsItem = remember {
+        mutableStateListOf<SettingsItem>()
+    }
 
 
     for (count in list.indices) {
@@ -99,10 +101,11 @@ fun MyStack() {
                         orientation = Orientation.Vertical,
                         state = rememberDraggableState { delta ->
 
-                            if (delta > 0) {
+                            Log.d("ddddTAG", "delta: $delta")
+
+                            if (delta > 70) {
                                 focusItemState.intValue--
-                            }
-                            else
+                            } else if (delta < -70)
                                 focusItemState.intValue++
 
 //                            listSettingsItem[count].offsetY = if (delta > 0) {
