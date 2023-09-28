@@ -17,8 +17,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableIntState
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -38,55 +40,74 @@ enum class DragAnchors {
     Bottom
 }
 
-data class CardsSettings @OptIn(ExperimentalFoundationApi::class) constructor(
-    val modifier: Modifier,
+data class CardSettings @OptIn(ExperimentalFoundationApi::class) constructor(
     val state: AnchoredDraggableState<DragAnchors>,
     var toBackground: Int
 )
 
-@OptIn(ExperimentalFoundationApi::class)
 @Preview
 @Composable
 fun HorizontalDraggableSample() {
-
+    
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.toFloat()
     val density = LocalDensity.current
 
-
-
     val list = listOf(1, 2, 3, 4, 5)
     val focusItemState = remember { mutableIntStateOf(list.size / 2) }
 
-
-    val listCardsSettings = remember {
+    val statesSettings = remember {
         mutableStateListOf(
-            *getStateArrayOfModifiers(
+            *getArrayStates(
                 size = list.size,
                 screenHeight = screenHeight,
                 density = density,
-                focusItem = focusItemState
+                focusItem = focusItemState.intValue
             )
         )
     }
+//    val statesSettings2 = remember {mutableStateOf(listOf<CardSettings>())}
 
-//    Log.d("focusItemState.intValue", "focusItemState.intValue: ${focusItemState.intValue}")
+    StackField(list, statesSettings, focusItemState)
 
-    StackField(list, listCardsSettings, focusItemState)
+    UpdateFocusItem(
+        statesSettings,
+        size = list.size,
+        screenHeight = screenHeight,
+        density = density,
+        focusItemState = focusItemState
+    )
 
-    listCardsSettings.forEach{
-        UpdateState(it, focusItemState)
+    statesSettings.forEachIndexed{ count, item ->
+        UpdateState(item, count, focusItemState)
     }
-
 }
 
+/**Можно не Composable*/
+//@Composable
+fun UpdateFocusItem(
+    statesSettings: SnapshotStateList<CardSettings>,
+    size: Int,
+    screenHeight: Float,
+    density: Density,
+    focusItemState: MutableIntState
+) {
+    statesSettings.clear()
+    statesSettings.addAll(getArrayStates(
+        size = size,
+        screenHeight = screenHeight,
+        density = density,
+        focusItem = focusItemState.intValue
+    ))
+}
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun StackField(
     list: List<Int>,
-    listCardsSettings: SnapshotStateList<CardsSettings>,
+    statesSettings: SnapshotStateList<CardSettings>,
     focusItem: MutableIntState
-) {
+    ) {
     Log.d("newne5555555TAG", "StackField: ")
 
     Box(
@@ -97,9 +118,16 @@ fun StackField(
         for (count in list.indices) {
             Button(
                 onClick = {
-//                    focusItemState.intValue = count
+                    focusItem.intValue = count
                 },
-                modifier = listCardsSettings[count].modifier.zIndex(count.toFloat() * if (count > focusItem.intValue) -1 else 1)
+//                modifier = listCardsSettings[count].modifier.zIndex(count.toFloat() * if (count > focusItem.intValue) -1 else 1)
+                modifier = anchoredDraggableModifier(
+                    state = statesSettings[count].state,
+                    count = count,
+                    toBackground = if (count > focusItem.intValue) -1 else 1,  //Bottom Item to background
+//                    statesSettings[count].toBackground  //Bottom Item to background
+                )
+//
             ){
                 Text(text = "Button ${list[count]}")
             }
@@ -109,64 +137,63 @@ fun StackField(
 
 
 @OptIn(ExperimentalFoundationApi::class)
-//@Composable
-fun getStateArrayOfModifiers(size: Int, screenHeight: Float, density: Density, focusItem: MutableIntState): Array<CardsSettings> {
+fun getArrayStates(
+    size: Int,
+    screenHeight: Float,
+    density: Density,
+    focusItem: Int
+): Array<CardSettings> {
 
-    Log.d("newne5555555TAG", "getStateArrayOfModifiers: ")
-
-
-    val listStates = mutableListOf<CardsSettings>()
+    val listStates = mutableListOf<CardSettings>()
 
     for (count in 0 until size) {
         val state = getState(
             screenHeight = screenHeight,
             density = density,
             count,
-            if (count > focusItem.intValue) DragAnchors.Bottom else DragAnchors.Top
+            if (count > focusItem) DragAnchors.Bottom else DragAnchors.Top
         )
 
-        val toBackground = if (count > focusItem.intValue) -1 else 1
+        val toBackground = if (count > focusItem) -1 else 1
 
-        val modifier = anchoredDraggableModifier(
-            state = state,
-            count = count,
-            toBackground  //Bottom Item to background
-        )
-
-        listStates.add(CardsSettings(modifier, state, toBackground))
+        listStates.add(CardSettings(state, toBackground))
     }
-
     return listStates.toTypedArray()
 }
+
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun UpdateState(
-    cardsSettings: CardsSettings,
+    cardSettings: CardSettings,
+    count: Int,
     focusItemState: MutableIntState,
 ) {
     Log.d("newne5555555TAG", "UpdateState: ")
 
-    val initialValue = cardsSettings.state.currentValue
+    val initialValue = cardSettings.state.currentValue
 
-    if (cardsSettings.state.isAnimationRunning) {
+    if (cardSettings.state.isAnimationRunning) {
+
+        if (count < focusItemState.intValue ) {
+//            groupMovement.floatValue = cardsSettings.state.offset
+//            Log.d("hhhhh5555TAG", "cardsSettings.state.offset ${cardsSettings.state.offset}: ")
+        }
+
         DisposableEffect(Unit) {
             onDispose {
                 when {
-                    DragAnchors.Top == cardsSettings.state.currentValue && initialValue != cardsSettings.state.currentValue -> {
+                    DragAnchors.Top == cardSettings.state.currentValue && initialValue != cardSettings.state.currentValue -> {
 
                         focusItemState.intValue++   //пересчитывается даже когда был top и вернулся обратно
-                        cardsSettings.toBackground = 1
-
-                        Log.d("fff12TAG", "swipe top: ")
+                        cardSettings.toBackground = 1
                     }
 
-                    DragAnchors.Bottom == cardsSettings.state.currentValue && initialValue != cardsSettings.state.currentValue-> {
+                    DragAnchors.Bottom == cardSettings.state.currentValue && initialValue != cardSettings.state.currentValue-> {
 
                         focusItemState.intValue--   //пересчитывается даже когда был bottom и вернулся обратно
-                        cardsSettings.toBackground = -1
-
-                        Log.d("fff12TAG", "swipe Bottom: ")
+                        cardSettings.toBackground = -1
+//                        groupMovement.floatValue = 0f
                     }
 
                     else -> return@onDispose
@@ -174,48 +201,41 @@ fun UpdateState(
             }
         }
     }
-
 }
 
-
 @OptIn(ExperimentalFoundationApi::class)
-//@Composable
-fun getState(screenHeight: Float, density: Density, count: Int, dragAnchors: DragAnchors): AnchoredDraggableState<DragAnchors> = //remember {
-    AnchoredDraggableState(
-        initialValue = dragAnchors,
-        positionalThreshold = { distance: Float -> distance * 0.5f },
-        velocityThreshold = { with(density) { 100.dp.toPx() } },
-        animationSpec = tween(),
-    ).apply {
-        updateAnchors(
-            DraggableAnchors {
-                DragAnchors.Top at 50f * count
-                DragAnchors.Bottom at screenHeight //* 1.7f //400f
-            }//, newTarget = ?
+fun getState(
+    screenHeight: Float, density: Density, count: Int, dragAnchors: DragAnchors
+): AnchoredDraggableState<DragAnchors> = AnchoredDraggableState(
+    initialValue = dragAnchors,
+    positionalThreshold = { distance: Float -> distance * 0.5f },
+    velocityThreshold = { with(density) { 100.dp.toPx() } },
+    animationSpec = tween(),
+).apply {
+    updateAnchors(
+        DraggableAnchors {
+            DragAnchors.Top at 50f * count
+            DragAnchors.Bottom at screenHeight //* 1.7f //400f
+        }
+    )
+}
+
+@Composable
+@OptIn(ExperimentalFoundationApi::class)
+fun anchoredDraggableModifier(
+    state: AnchoredDraggableState<DragAnchors>,
+    count: Int,
+    toBackground: Int
+) = Modifier
+    .size(300.dp, 200.dp)
+    .border(1.dp, Color.Red)
+    .offset {
+
+        IntOffset(
+            y = state
+                .requireOffset()
+                .roundToInt(), x = 0
         )
     }
-//}
-
-//@OptIn(ExperimentalFoundationApi::class)
-//@Composable
-@OptIn(ExperimentalFoundationApi::class)
-fun anchoredDraggableModifier(state: AnchoredDraggableState<DragAnchors>, count: Int, toBackground: Int) =
-    Modifier
-        .size(300.dp, 200.dp)
-        .border(1.dp, Color.Red)
-        .offset {
-//            if (isMoveGroup){
-//            }
-            Log.d("fff12TAG", "anchoredDraggableModifier toBackground = $toBackground")
-
-
-
-            IntOffset(
-                y = state
-                    .requireOffset()
-                    .roundToInt(),
-                x = 0
-            )
-        }
-        .anchoredDraggable(state, Orientation.Vertical)
-//        .zIndex(count.toFloat() * toBackground)
+    .anchoredDraggable(state, Orientation.Vertical)
+    .zIndex(count.toFloat() * toBackground)
