@@ -10,8 +10,8 @@ import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
+import com.example.flygame.gamefield.GameViewModel
 import com.example.flygame.gamefield.Table
-import com.example.flygame.settings.models.Coordinates
 import kotlinx.coroutines.launch
 
 
@@ -19,34 +19,17 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun BottomSheetSettings(
-    answer: (id: Int) -> Unit = {},
-    coordinatesFly: Coordinates
+    gameViewModel: GameViewModel
 ) {
 
     val contextForToast = LocalContext.current.applicationContext
-
-//    val coroutineScope = rememberCoroutineScope()
-//    val scaffoldState = rememberBottomSheetScaffoldState()
 
     val coroutineScope = rememberCoroutineScope()
     val scaffoldState = rememberBottomSheetScaffoldState()
 
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
-        sheetContent = {
-//            Box(
-//                modifier = Modifier.background(Color.Cyan)
-//            ) {
-//                Row(){
-//                    Text(text = "123")
-//                    Text(text = "123")
-//                    Text(text = "123")
-//                }
-//
-//            }
-                       SettingsScreen()
-
-                       },
+        sheetContent = { SettingsScreen() },
         floatingActionButton = {
             FloatingActionButton(onClick = {
                 coroutineScope.launch {
@@ -63,12 +46,10 @@ fun BottomSheetSettings(
             }
         }
     ) {
-//        Text(text = "Content")
-
         /**Находится здесь, потому content BottomSheet занимает всё доступное пространство
          * и перекрывает поле.
          * */
-        Table(settingsStore = SettingsStore(LocalContext.current), answer, coordinatesFly)
+        Table(gameViewModel)
     }
 }
 

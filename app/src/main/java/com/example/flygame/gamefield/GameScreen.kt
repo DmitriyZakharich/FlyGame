@@ -2,6 +2,7 @@ package com.example.flygame.gamefield
 
 import android.util.Log
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,10 +15,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -25,42 +30,37 @@ import com.example.flygame.R
 import com.example.flygame.settings.SettingsStore
 import com.example.flygame.settings.models.Coordinates
 import com.example.flygame.settings.models.SettingsData
+import com.example.flygame.swipe_box.VolumetricField
 
 @Composable
-fun GameScreen() {
-    Column(modifier = Modifier.fillMaxSize()) {
-//        Table(SettingsStore())
-    }
+fun Table(gameViewModel: GameViewModel) {
 
-}
+    val settingsStore = SettingsStore(LocalContext.current)
 
-@Composable
-fun Table(
-    settingsStore: SettingsStore,
-    answer: (id: Int) -> Unit = {},
-    coordinatesFly: Coordinates
-) {
     val settingsState = settingsStore.getData().collectAsState(SettingsData())
     val settings = settingsState.value
 
+    val isGameProcess by gameViewModel.stateGameProcess.collectAsState()
+    val waitingResponse by gameViewModel.stateWaitingResponse.collectAsState()
+
+    if (isGameProcess && !waitingResponse) return   //Скрывать поле во время игры, чтобы представлять его в голове
+
     if (!settings.isVolume)
-        FlatField(settings, answer, coordinatesFly)
+        FlatField(settings, gameViewModel)
     else
-        VolumetricField(settings)
+        VolumetricField(settings, gameViewModel)
 }
 
 @Composable
 fun FlatField(
     settings: SettingsData,
-    answer: (id: Int) -> Unit = {},
-    coordinatesFly: Coordinates
+    gameViewModel: GameViewModel,
+    volumeIndex: Int = -1
 ) {
 
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
     val screenWidth = configuration.screenWidthDp.dp
-
-
 
     Column(
         modifier = Modifier
@@ -77,7 +77,7 @@ fun FlatField(
             ) {
                 for (cellCount in 0 until settings.tableSize) {
                     MyCell(
-                        id = Coordinates(horizontalX = cellCount, verticalY = rowCount),
+                        id = Coordinates(horizontalX = cellCount, verticalY = rowCount, volumeZ = volumeIndex),
                         modifier = Modifier
                             .fillMaxSize()
                             .weight(1f)
@@ -86,8 +86,7 @@ fun FlatField(
                                 color = Color.Blue,
                                 shape = AbsoluteCutCornerShape(2)
                             ),
-                        answer,
-                        coordinatesFly
+                        gameViewModel
                     )
                 }
             }
@@ -99,27 +98,35 @@ fun FlatField(
 fun MyCell(
     id: Coordinates,
     modifier: Modifier,
-    answer: (id: Int) -> Unit = {},
-    coordinatesFly: Coordinates
+    gameViewModel: GameViewModel
 ) {
+    val coordinatesFly by gameViewModel.stateCoordinatesFly.collectAsState()
+    val isGameProcess by gameViewModel.stateGameProcess.collectAsState()
+    val waitingResponse by gameViewModel.stateWaitingResponse.collectAsState()
+    var backgroundColor by remember { mutableStateOf(Color.White) }
+
+    if (isGameProcess)
+        backgroundColor = Color.White
+
     IconButton(
         onClick = {
-            if (id == coordinatesFly)
-                Log.d("fffffffffffTAG", "ПОБЕДА")
-        },  //verticalY, horizontalX
+
+            if (isGameProcess && waitingResponse){
+                backgroundColor = if (id == coordinatesFly){
+                    Log.d("fffffffffffTAG", "ПОБЕДА")
+                    Color.Green
+                } else
+                    Color.Red
+
+                gameViewModel.stopGame()
+            }
+
+        },
         modifier = modifier
+            .background(backgroundColor)
     ) {
 
-//        val coordinatesFly = state.collectAsState()
-//        val state2 by remember { state }
-//        val coordinatesState = state2
-
-        Log.d("fffffffffffTAG", "MyCell coordinatesFly = $coordinatesFly")
-        Log.d("fffffffffffTAG", "MyCell id = $id")
-
-        if (id == coordinatesFly) {
-            Log.d("fffffffffffTAG", "Муха тут")
-
+        if (id == coordinatesFly && !isGameProcess) {
             Image(
                 painter = painterResource(id = R.drawable.icon_fly),
                 contentDescription = "icon",
@@ -130,17 +137,11 @@ fun MyCell(
     }
 }
 
-@Composable
-fun VolumetricField(settings: SettingsData) {
-
-}
-
 @Preview
 @Composable
 fun PreviewFlatField() {
     FlatField(
         settings = SettingsData(),
-        {},
-        Coordinates()
+        GameViewModel(SettingsStore(context = LocalContext.current.applicationContext))
     )
 }

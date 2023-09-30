@@ -57,9 +57,7 @@ class ComposeActivity : ComponentActivity() {
 fun MainScreen(name: String, modifier: Modifier = Modifier) {
     val scope = rememberCoroutineScope()
     val gameViewModel: GameViewModel = viewModel()
-    val answer: (Int) -> Unit = { id -> gameViewModel.cellClickListener(id) }
-
-    val coordinatesFly by gameViewModel.stateCoordinatesFly.collectAsState()
+    val isGameProcess by gameViewModel.stateGameProcess.collectAsState()
 
     Scaffold(
         topBar = {
@@ -87,10 +85,13 @@ fun MainScreen(name: String, modifier: Modifier = Modifier) {
         },
         bottomBar = {
             Button(
-                onClick = { gameViewModel.startGame() },
+                onClick = {
+                    gameViewModel.startGame()
+                },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(5.dp)
+                    .padding(5.dp),
+                enabled = !isGameProcess
             ) {
                 Text(text = "Старт", fontSize = 25.sp)
             }
@@ -102,7 +103,7 @@ fun MainScreen(name: String, modifier: Modifier = Modifier) {
                     .fillMaxSize()
                     .padding(innerPadding)
                     .background(Color.Red)) {
-                BottomSheetSettings(answer, coordinatesFly)
+                BottomSheetSettings(gameViewModel)
 
             }
         }

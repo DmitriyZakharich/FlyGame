@@ -66,7 +66,7 @@ object GameMoves: TextToSpeech.OnInitListener {
                         verticalY = coordinatesFly.verticalY,
                         volumeZ = coordinatesFly.volumeZ + move)
 
-                    notification = if (move < 0) "Вперед" else "Назад"
+                    notification = if (move < 0) "Назад" else "Вперед"
                     successfulMove = true
                 }
             }

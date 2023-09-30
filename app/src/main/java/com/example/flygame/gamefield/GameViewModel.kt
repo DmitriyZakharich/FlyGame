@@ -26,6 +26,9 @@ class GameViewModel @Inject constructor(
     private val _stateGameProcess: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val stateGameProcess: StateFlow<Boolean> = _stateGameProcess
 
+    private val _stateWaitingResponse: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val stateWaitingResponse: StateFlow<Boolean> = _stateWaitingResponse
+
     private val textToSpeech: TextToSpeech = TextToSpeech(App.appContext, this)
     private var coordinatesFly = Coordinates()
     private var job: Job? = null
@@ -58,21 +61,19 @@ class GameViewModel @Inject constructor(
             settingsStore.getData().collect {
                 Log.d("tagTag123321", "collect")
 
-                setLiveDataGameProcess(true)
+                _stateGameProcess.emit(true)
                 settingInitialCoordinates(it)
                 gameProcess(it.tableSize, it.numberOfMoves, it.isVolume)
-                setLiveDataGameProcess(false)
+                _stateWaitingResponse.emit(true)
                 job?.cancel()
             }
 //            onResult(result) // onResult is called on the main thread
         }
-
-
     }
 
-    private suspend fun setLiveDataGameProcess(inProcess: Boolean) {
-        _stateGameProcess.emit(inProcess)
-    }
+//    private suspend fun setLiveDataGameProcess(inProcess: Boolean) {
+//        _stateGameProcess.emit(inProcess)
+//    }
 
     private suspend fun gameProcess(tableSize: Int, numberOfMoves: Int, isVolume: Boolean) {
         for (i in 1..numberOfMoves) {
@@ -80,33 +81,6 @@ class GameViewModel @Inject constructor(
 
             coordinatesFly = GameMoves.getMove(coordinatesFly, tableSize, isVolume)
             _stateCoordinatesFly.emit(coordinatesFly)
-        }
-    }
-
-    fun cellClickListener(id: Int) {
-        Log.d("tagTag123321", "id = $id")
-
-        when (id) {
-            in 100..999 ->
-                if ("$id"[0].digitToInt() == coordinatesFly.volumeZ
-                    && "$id"[1].digitToInt() == coordinatesFly.verticalY
-                    && "$id"[2].digitToInt() == coordinatesFly.horizontalX
-                )
-                    Log.d("tagTag123321", "---------Ура--------")
-
-            in 10..99 ->
-                if (coordinatesFly.volumeZ == 0
-                    && "$id"[0].digitToInt() == coordinatesFly.verticalY
-                    && "$id"[1].digitToInt() == coordinatesFly.horizontalX
-                )
-                    Log.d("tagTag123321", "---------Ура--------")
-
-            in 0..9 ->
-                if (coordinatesFly.volumeZ == 0
-                    && coordinatesFly.verticalY == 0
-                    && "$id"[0].digitToInt() == coordinatesFly.horizontalX
-                )
-                    Log.d("tagTag123321", "---------Ура--------")
         }
     }
 
@@ -123,6 +97,13 @@ class GameViewModel @Inject constructor(
 
         } else {
             Log.e("TTS", "Initialization Failed!")
+        }
+    }
+
+    fun stopGame() {
+        viewModelScope.launch{
+            _stateGameProcess.emit(false)
+            _stateWaitingResponse.emit(false)
         }
     }
 }

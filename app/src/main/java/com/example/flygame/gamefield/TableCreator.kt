@@ -89,7 +89,7 @@ class TableCreator(private val context: Context, private val viewModel: GameView
     }
 
     private fun onClick() = View.OnClickListener {
-        viewModel.cellClickListener(it.id)
+//        viewModel.cellClickListener(it.id)
         Log.d("tagTag123321", "---------${it.id}--------")
 
     }
