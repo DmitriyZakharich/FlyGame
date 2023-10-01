@@ -22,6 +22,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.flygame.gamefield.GameViewModel
+import com.example.flygame.instructions.InstructionsScreen
 import com.example.flygame.settings.BottomSheetSettings
 import com.example.flygame.ui.theme.FlyGameTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -59,6 +62,10 @@ fun MainScreen(name: String, modifier: Modifier = Modifier) {
     val gameViewModel: GameViewModel = viewModel()
     val isGameProcess by gameViewModel.stateGameProcess.collectAsState()
 
+    val showInstructionsDialog = remember { mutableStateOf(false) }
+    if (showInstructionsDialog.value)
+        InstructionsScreen(showInstructionsDialog)
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -75,7 +82,7 @@ fun MainScreen(name: String, modifier: Modifier = Modifier) {
                 },
                 title = { /*TODO*/ },
                 actions = {
-                    IconButton(onClick = { }) {
+                    IconButton(onClick = { showInstructionsDialog.value = true }) {
                         Icon(painterResource(
                             id = R.drawable.ic_question),
                             contentDescription = "Инструкция")

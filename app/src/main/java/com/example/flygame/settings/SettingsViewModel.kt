@@ -22,7 +22,6 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val settingsStore: SettingsStore
-
 ) : ViewModel() {
 
     val data: StateFlow<SettingsViewData> = settingsStore
@@ -43,7 +42,6 @@ class SettingsViewModel @Inject constructor(
     )
 
     fun spinnerItemSelected(state: SettingsState) {
-        Log.d(TAG, "SettingsViewModel spinnerItemSelected")
         viewModelScope.launch {
             settingsStore.saveToken(state)
         }

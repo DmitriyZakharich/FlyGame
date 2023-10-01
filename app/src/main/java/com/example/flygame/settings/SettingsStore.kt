@@ -43,8 +43,6 @@ class SettingsStore @Inject constructor(@ApplicationContext private val context:
     }
 
     fun getData(): Flow<SettingsData> = context.dataStore.data.map { preferences ->
-        Log.d(TAG, "SettingsStore getData")
-
         SettingsData(
             tableSize = preferences[intPreferencesKey("table_size_key")] ?: 3,
             isVolume = preferences[booleanPreferencesKey("volume_key")] ?: false,

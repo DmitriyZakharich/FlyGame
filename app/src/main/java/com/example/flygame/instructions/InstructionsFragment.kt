@@ -10,13 +10,13 @@ import com.example.flygame.R
 
 class InstructionsFragment : Fragment(R.layout.fragment_instructions) {
 
-    private var instructionsData: LiveData<ArrayList<String>>? = null
+//    private var instructionsData: LiveData<ArrayList<String>>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val viewModel = ViewModelProvider(this)[InstructionsViewModel::class.java]
-        instructionsData = viewModel.getInstructionsData()
+//        instructionsData = viewModel.getNextInstruction()
 
     }
 
@@ -24,11 +24,11 @@ class InstructionsFragment : Fragment(R.layout.fragment_instructions) {
         super.onResume()
         val textureView1 = requireView().findViewById<TextView>(R.id.textview_instruction1)
         val textureView2 = requireView().findViewById<TextView>(R.id.textview_instruction2)
-        instructionsData?.observe(this,
-            {
-                textureView1.text = it[0]
-                textureView2.text = it[1]
-            })
+//        instructionsData?.observe(this
+//        ) {
+//            textureView1.text = it[0]
+//            textureView2.text = it[1]
+//        }
     }
 
 
