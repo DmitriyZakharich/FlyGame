@@ -1,6 +1,5 @@
 package com.example.flygame.instructions
 
-import android.util.Log
 import com.example.flygame.R
 import javax.inject.Inject
 

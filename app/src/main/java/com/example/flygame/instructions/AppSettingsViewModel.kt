@@ -1,4 +1,4 @@
-package com.example.flygame.settings
+package com.example.flygame.instructions
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -18,36 +18,21 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SettingsViewModel @Inject constructor(
-    private val settingsStore: SettingsStore
-) : ViewModel() {
+class AppSettingsViewModel @Inject constructor(
+    private val appSettingsStore: AppSettingsStore
+) : ViewModel(){
 
-    val data: StateFlow<SettingsViewData> = settingsStore
+    val data: StateFlow<AppSettingsData> = appSettingsStore
         .getData()
-        .map{ mapperToView(it) }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = SettingsViewData()
+            initialValue = AppSettingsData()
         )
 
-    private fun mapperToView(data: SettingsData): SettingsViewData = SettingsViewData(
-        spinnerTableSize = listTableSizes.indexOf(data.tableSize.toString()),
-        spinnerIsVolume = data.isVolume,
-        spinnerSpeed = listSpeed.indexOf(data.speed.toString()),
-        spinnerVoice = listVoiceArrows.indexOf(data.voice),
-        spinnerNumberOfMoves = listNumberOfMoves.indexOf(data.numberOfMoves.toString())
-    )
-
-    fun spinnerItemSelected(state: SettingsState) {
+    fun setAppSettings(state: AppSettingsState) {
         viewModelScope.launch {
-            settingsStore.saveToken(state)
-        }
-    }
-
-    fun clickListener(state: SettingsState) {
-        viewModelScope.launch {
-            settingsStore.saveToken(state)
+            appSettingsStore.saveToken(state)
         }
     }
 }

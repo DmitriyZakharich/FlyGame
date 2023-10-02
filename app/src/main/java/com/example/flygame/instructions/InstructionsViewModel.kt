@@ -20,8 +20,12 @@ class InstructionsViewModel @Inject constructor(
     private val _stateInstructionData: MutableStateFlow<InstructionData> = MutableStateFlow(initInstructionData())
     val stateInstructionData: StateFlow<InstructionData> = _stateInstructionData
 
+    private val _stateInstructionsSize: MutableStateFlow<Int> = MutableStateFlow(0)
+    val stateInstructionsSize: StateFlow<Int> = _stateInstructionsSize
+
     init {
         instructions.addAll(instructionsModel.loadInstruction())
+        _stateInstructionsSize.value = instructions.size + 1    // "+ 1" потому что есть нулевое значение initInstructionData
     }
 
     fun restart() {

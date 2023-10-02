@@ -1,6 +1,7 @@
 package com.example.flygame
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Button
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -19,6 +21,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -32,11 +35,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.flygame.about_app.MyNavigationDrawer
 import com.example.flygame.gamefield.GameViewModel
+import com.example.flygame.instructions.AppSettingsState
+import com.example.flygame.instructions.AppSettingsViewModel
 import com.example.flygame.instructions.InstructionsScreen
 import com.example.flygame.settings.BottomSheetSettings
 import com.example.flygame.ui.theme.FlyGameTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ComposeActivity : ComponentActivity() {
@@ -55,23 +63,49 @@ class ComposeActivity : ComponentActivity() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, DelicateCoroutinesApi::class)
 @Composable
 fun MainScreen(name: String, modifier: Modifier = Modifier) {
     val scope = rememberCoroutineScope()
+
     val gameViewModel: GameViewModel = viewModel()
     val isGameProcess by gameViewModel.stateGameProcess.collectAsState()
+    val waitingResponse by gameViewModel.stateWaitingResponse.collectAsState()
+    val textButton = remember { mutableStateOf("Старт") }
 
+    textButton.value =
+        when {
+            isGameProcess && !waitingResponse -> "Игра"
+            waitingResponse -> "Ожидание ответа"
+            else -> "Старт"
+        }
+
+
+    val appSettingsViewModel: AppSettingsViewModel = viewModel()
+    val firstIntroduction by appSettingsViewModel.data.collectAsState()
     val showInstructionsDialog = remember { mutableStateOf(false) }
-    if (showInstructionsDialog.value)
-        InstructionsScreen(showInstructionsDialog)
+
+    if (showInstructionsDialog.value || firstIntroduction.showInstructions){
+        InstructionsScreen(showInstructionsDialog){
+            appSettingsViewModel.setAppSettings(AppSettingsState.Instructions(false))
+        }
+    }
+
+
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    MyNavigationDrawer(drawerState, scope)
+
 
     Scaffold(
         topBar = {
             TopAppBar(
                 navigationIcon = {
                     IconButton(
-                        onClick = { },
+                        onClick = {
+                            Log.d("ccxgtgt", "onClick: ")
+                            scope.launch {
+                            drawerState.open()
+                        }},
                         content = {
                             Icon(
                                 imageVector = Icons.Default.Menu,
@@ -100,7 +134,7 @@ fun MainScreen(name: String, modifier: Modifier = Modifier) {
                     .padding(5.dp),
                 enabled = !isGameProcess
             ) {
-                Text(text = "Старт", fontSize = 25.sp)
+                Text(text = textButton.value, fontSize = 25.sp)
             }
 
         },

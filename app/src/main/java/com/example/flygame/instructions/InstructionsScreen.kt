@@ -19,6 +19,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,14 +31,19 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun InstructionsScreen(showInstructionsDialog: MutableState<Boolean>) {
+fun InstructionsScreen(showInstructionsDialog: MutableState<Boolean>, closeDialog: () -> Unit) {
 
     val instructionsViewModel: InstructionsViewModel = viewModel()
     val instructionData by instructionsViewModel.stateInstructionData.collectAsState()
+    val instructionsSize by instructionsViewModel.stateInstructionsSize.collectAsState()
+
+    val currentStepProgressBar = remember { mutableIntStateOf(0) }
+
 
     Dialog(
         onDismissRequest = {
             showInstructionsDialog.value = false
+            closeDialog()
             instructionsViewModel.restart()
         }
     ) {
@@ -53,8 +60,6 @@ fun InstructionsScreen(showInstructionsDialog: MutableState<Boolean>) {
                     .fillMaxWidth()
                     .background(Color.White)
             ) {
-
-
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -73,20 +78,22 @@ fun InstructionsScreen(showInstructionsDialog: MutableState<Boolean>) {
                     )
                 }
 
-//                Text(
-//                    text = "Lorem Ipsum is simply dummy text",
-//                    modifier = Modifier.padding(8.dp), fontSize = 20.sp
-//                )
-
                 Text(
                     text = instructionData.instruction,
                     modifier = Modifier.padding(8.dp)
+                )
+
+                StepsProgressBar(
+                    modifier = Modifier.fillMaxWidth(),
+                    numberOfSteps = instructionsSize,
+                    currentStep = currentStepProgressBar.intValue
                 )
 
                 Row(Modifier.padding(top = 10.dp)) {
                     OutlinedButton(
                         onClick = {
                             showInstructionsDialog.value = false
+                            closeDialog()
                             instructionsViewModel.restart()
                         },
                         Modifier
@@ -99,7 +106,10 @@ fun InstructionsScreen(showInstructionsDialog: MutableState<Boolean>) {
 
                     if (instructionData.event == Event.ON_NEXT)
                         Button(
-                            onClick = { instructionsViewModel.getNextInstruction() },
+                            onClick = {
+                                instructionsViewModel.getNextInstruction()
+                                currentStepProgressBar.intValue++
+                            },
                             Modifier
                                 .fillMaxWidth()
                                 .padding(8.dp)

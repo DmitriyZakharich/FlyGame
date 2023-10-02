@@ -1,6 +1,5 @@
 package com.example.flygame.settings
 
-import androidx.compose.foundation.layout.height
 import androidx.compose.material.BottomSheetScaffold
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.FloatingActionButton
@@ -10,20 +9,17 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.flygame.gamefield.GameViewModel
 import com.example.flygame.gamefield.Table
 import kotlinx.coroutines.launch
 
-//@OptIn(ExperimentalMaterial3Api::class)
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun BottomSheetSettings(
     gameViewModel: GameViewModel
 ) {
-
     val contextForToast = LocalContext.current.applicationContext
 
     val coroutineScope = rememberCoroutineScope()
@@ -45,7 +41,7 @@ fun BottomSheetSettings(
             }) {
                 Icon(
                     imageVector = Icons.Default.Settings,
-                    contentDescription = "Favorite"
+                    contentDescription = "Settings"
                 )
             }
         }
