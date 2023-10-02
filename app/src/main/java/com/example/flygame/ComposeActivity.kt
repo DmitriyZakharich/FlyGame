@@ -35,6 +35,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.flygame.about_app.AboutAppScreen
 import com.example.flygame.about_app.MyNavigationDrawer
 import com.example.flygame.gamefield.GameViewModel
 import com.example.flygame.instructions.AppSettingsState
@@ -91,10 +92,13 @@ fun MainScreen(name: String, modifier: Modifier = Modifier) {
         }
     }
 
+    val stateAboutApp = remember { mutableStateOf(false) }
+    if (stateAboutApp.value) {
+        AboutAppScreen(stateAboutApp)
+    }
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     MyNavigationDrawer(drawerState, scope)
-
 
     Scaffold(
         topBar = {
@@ -102,7 +106,9 @@ fun MainScreen(name: String, modifier: Modifier = Modifier) {
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                            Log.d("ccxgtgt", "onClick: ")
+
+                            stateAboutApp.value = true
+
                             scope.launch {
                             drawerState.open()
                         }},

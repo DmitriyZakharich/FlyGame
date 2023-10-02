@@ -110,10 +110,8 @@ fun MyCell(
 
     IconButton(
         onClick = {
-
             if (isGameProcess && waitingResponse){
                 backgroundColor = if (id == coordinatesFly){
-                    Log.d("fffffffffffTAG", "ПОБЕДА")
                     Color.Green
                 } else
                     Color.Red
@@ -125,7 +123,6 @@ fun MyCell(
         modifier = modifier
             .background(backgroundColor)
     ) {
-
         if (id == coordinatesFly && !isGameProcess) {
             Image(
                 painter = painterResource(id = R.drawable.icon_fly),
@@ -133,7 +130,6 @@ fun MyCell(
                 modifier = Modifier.fillMaxSize()
             )
         }
-        Text(text = "${id.horizontalX}${id.verticalY}${id.volumeZ}")
     }
 }
 
