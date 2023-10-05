@@ -1,15 +1,19 @@
 package com.example.flygame.settings
 
-import android.util.Log
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -22,13 +26,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.flygame.R
-import com.example.flygame.settings.models.TAG
+import com.example.flygame.instructions.AppSettingsState
+import com.example.flygame.instructions.AppSettingsViewModel
+import com.example.flygame.instructions.InstructionsScreen
+import com.example.flygame.instructions.TypeInstruction
 import com.example.flygame.settings.models.listNumberOfMoves
 import com.example.flygame.settings.models.listSpeed
 import com.example.flygame.settings.models.listTableSizes
@@ -45,6 +55,15 @@ fun SettingsScreen() {
         viewModel.spinnerItemSelected(state)
     }
 
+    val appSettingsViewModel: AppSettingsViewModel = viewModel()
+    val firstIntroduction by appSettingsViewModel.data.collectAsState()
+    val showInstructionsDialog = remember { mutableStateOf(false) }
+    if (showInstructionsDialog.value ){
+        InstructionsScreen(TypeInstruction.VOLUMETRIC_FIELD, showInstructionsDialog){
+            appSettingsViewModel.setAppSettings(AppSettingsState.Instructions(false))
+        }
+    }
+
     Column(modifier = Modifier.fillMaxWidth()) {
          Text(
              text = stringResource(R.string.Settings),
@@ -53,7 +72,7 @@ fun SettingsScreen() {
              textAlign = TextAlign.Center,
              fontSize = 10.sp)
 
-        MyRow(
+        MySpinnerRow(
             id = R.string.table_size,
             options = listTableSizes,
             state = settingsData.value.spinnerTableSize,
@@ -63,8 +82,21 @@ fun SettingsScreen() {
             verticalAlignment = Alignment.CenterVertically) {
             MyText(
                 id = R.string.volume,
-                modifier = Modifier.weight(1f)
+                Modifier
             )
+            Box(
+                modifier = Modifier.weight(1f),
+                contentAlignment = Alignment.CenterStart) {
+                Icon(
+                    painterResource(
+                    id = R.drawable.ic_circle_question),
+                    contentDescription = "Инструкция",
+                    Modifier
+                        .padding(start = 5.dp)
+                        .clickable { showInstructionsDialog.value = true },
+                )
+
+            }
             Switch(
                 checked = settingsData.value.spinnerIsVolume,
                 onCheckedChange = {
@@ -73,19 +105,19 @@ fun SettingsScreen() {
                 }
             )
         }
-        MyRow(
+        MySpinnerRow(
             id = R.string.speed,
             options = listSpeed,
             state = settingsData.value.spinnerSpeed,
             callback
         )
-        MyRow(
+        MySpinnerRow(
             id = R.string.voice,
             options = listVoiceArrows,
             state = settingsData.value.spinnerVoice,
             callback
         )
-        MyRow(
+        MySpinnerRow(
             id = R.string.number_of_moves,
             options = listNumberOfMoves,
             state = settingsData.value.spinnerNumberOfMoves,
@@ -105,7 +137,7 @@ fun SettingsScreen() {
 }
 
 @Composable
-fun MyRow(
+fun MySpinnerRow(
     id: Int,
     options: List<String>,
     state: Int,
@@ -115,9 +147,9 @@ fun MyRow(
         verticalAlignment = Alignment.CenterVertically) {
         MyText(
             id = id,
-            modifier = Modifier.weight(3f)
+            modifier = Modifier.weight(4f)
         )
-        Box(modifier = Modifier.weight(1f)){
+        Box(modifier = Modifier.wrapContentSize().weight(1.8f)){
             MySpinner(id, options, state, onSelect)
         }
     }
@@ -145,15 +177,16 @@ fun MySpinner(
     var expanded by remember { mutableStateOf(false) }
     var selectedOptionText by remember { mutableStateOf(options[state]) }
 
-    ExposedDropdownMenuBox(modifier = Modifier.wrapContentSize(),
+    ExposedDropdownMenuBox(/*modifier = Modifier.wrapContentSize(),*/
         expanded = expanded,
         onExpandedChange = {
             expanded = !expanded
         }
     ){
-        Log.d(TAG, "options: $options")
-        Log.d(TAG, "state: $state")
         TextField(
+            modifier = Modifier
+                .menuAnchor()
+                .widthIn(1.dp),
             readOnly = true,
             value = options[state],
             onValueChange = { },
@@ -163,18 +196,18 @@ fun MySpinner(
                 )
             },
             colors = ExposedDropdownMenuDefaults.textFieldColors(),
-            modifier = Modifier
-                .menuAnchor()
-                .wrapContentSize()
+            maxLines = 1,
+            textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End),
+
         )
 
-        ExposedDropdownMenu(modifier = Modifier.wrapContentSize(),
+        ExposedDropdownMenu(modifier = Modifier/*.wrapContentSize()*/,
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ){
             options.forEach { selectionOption ->
                 DropdownMenuItem(
-                    text = { Text(selectionOption) },
+                    text = { Text(text = selectionOption, modifier = Modifier/*.wrapContentSize()*/) },
                     onClick = {
                         selectedOptionText = selectionOption
                         expanded = false

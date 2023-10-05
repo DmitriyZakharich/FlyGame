@@ -1,5 +1,6 @@
 package com.example.flygame.instructions
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.flygame.R
@@ -11,7 +12,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class InstructionsViewModel @Inject constructor(
-    instructionsModel: InstructionsModel
+    private val instructionsModel: InstructionsModel
 ): ViewModel() {
 
     private val instructions = arrayListOf<InstructionData>()
@@ -24,12 +25,29 @@ class InstructionsViewModel @Inject constructor(
     val stateInstructionsSize: StateFlow<Int> = _stateInstructionsSize
 
     init {
-        instructions.addAll(instructionsModel.loadInstruction())
-        _stateInstructionsSize.value = instructions.size + 1    // "+ 1" потому что есть нулевое значение initInstructionData
+        Log.d("ppppppppTAG", "init ")
+//        instructions.addAll(instructionsModel.generalInstructions)
+//        _stateInstructionsSize.value = instructions.size + 1    // "+ 1" потому что есть нулевое значение initInstructionData
+    }
+
+    fun loadInstruction(typeInstruction: TypeInstruction) {
+        Log.d("ppppppppTAG", "loadInstruction ")
+
+        when (typeInstruction) {
+            TypeInstruction.GENERAL -> {
+                instructions.addAll(instructionsModel.generalInstructions)
+                _stateInstructionsSize.value = instructions.size + 1    // "+ 1" потому что есть нулевое значение initInstructionData
+            }
+            TypeInstruction.VOLUMETRIC_FIELD -> {
+                instructions.addAll(instructionsModel.instructionsVolumetricField)
+                _stateInstructionsSize.value = instructions.size + 1    // "+ 1" потому что есть нулевое значение initInstructionData
+            }
+        }
     }
 
     fun restart() {
         count = 0
+        instructions.clear()
         viewModelScope.launch{
             _stateInstructionData.emit(initInstructionData())
         }

@@ -53,13 +53,8 @@ class GameViewModel @Inject constructor(
     }
 
     fun startGame() {
-        Log.d("fffffffffffTAG", "startGame")
-
         job = viewModelScope.launch {
-            Log.d("tagTag123321", "launch")
-
             settingsStore.getData().collect {
-                Log.d("tagTag123321", "collect")
 
                 _stateGameProcess.emit(true)
                 settingInitialCoordinates(it)
@@ -71,14 +66,9 @@ class GameViewModel @Inject constructor(
         }
     }
 
-//    private suspend fun setLiveDataGameProcess(inProcess: Boolean) {
-//        _stateGameProcess.emit(inProcess)
-//    }
 
     private suspend fun gameProcess(tableSize: Int, numberOfMoves: Int, isVolume: Boolean) {
         for (i in 1..numberOfMoves) {
-//            Log.d("111111111tag", "for $i")
-
             coordinatesFly = GameMoves.getMove(coordinatesFly, tableSize, isVolume)
             _stateCoordinatesFly.emit(coordinatesFly)
         }

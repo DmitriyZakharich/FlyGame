@@ -1,5 +1,6 @@
 package com.example.flygame.instructions
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -31,20 +32,23 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun InstructionsScreen(showInstructionsDialog: MutableState<Boolean>, closeDialog: () -> Unit) {
+fun InstructionsScreen(typeInstruction: TypeInstruction, showInstructionsDialog: MutableState<Boolean>, closeDialog: () -> Unit) {
 
-    val instructionsViewModel: InstructionsViewModel = viewModel()
-    val instructionData by instructionsViewModel.stateInstructionData.collectAsState()
-    val instructionsSize by instructionsViewModel.stateInstructionsSize.collectAsState()
+    val viewModel: InstructionsViewModel = viewModel()
+    viewModel.loadInstruction(typeInstruction)
+    val instructionData by viewModel.stateInstructionData.collectAsState()
+    val instructionsSize by viewModel.stateInstructionsSize.collectAsState()
 
     val currentStepProgressBar = remember { mutableIntStateOf(0) }
+
+    Log.d("ppppppppTAG", "instructionsSize $instructionsSize")
 
 
     Dialog(
         onDismissRequest = {
             showInstructionsDialog.value = false
             closeDialog()
-            instructionsViewModel.restart()
+            viewModel.restart()
         }
     ) {
         Card(
@@ -94,7 +98,7 @@ fun InstructionsScreen(showInstructionsDialog: MutableState<Boolean>, closeDialo
                         onClick = {
                             showInstructionsDialog.value = false
                             closeDialog()
-                            instructionsViewModel.restart()
+                            viewModel.restart()
                         },
                         Modifier
                             .fillMaxWidth()
@@ -107,7 +111,7 @@ fun InstructionsScreen(showInstructionsDialog: MutableState<Boolean>, closeDialo
                     if (instructionData.event == Event.ON_NEXT)
                         Button(
                             onClick = {
-                                instructionsViewModel.getNextInstruction()
+                                viewModel.getNextInstruction()
                                 currentStepProgressBar.intValue++
                             },
                             Modifier

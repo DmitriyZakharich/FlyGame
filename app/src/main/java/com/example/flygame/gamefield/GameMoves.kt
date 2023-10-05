@@ -14,14 +14,14 @@ object GameMoves: TextToSpeech.OnInitListener {
     private var previousMove = Pair("", 0)
     private val textToSpeech: TextToSpeech = TextToSpeech(App.appContext, this)
 
+    init {
+        announcement("")
+    }
+
 
     suspend fun getMove(coordinatesFly: Coordinates, tableSize: Int, isVolume: Boolean): Coordinates {
         var notification = ""
         var successfulMove = false
-
-        Log.d("111111111tag","oldCoordinatesFly = $coordinatesFly")
-
-
         var newCoordinates = Coordinates()
 
         while (!successfulMove){
@@ -72,12 +72,6 @@ object GameMoves: TextToSpeech.OnInitListener {
             }
         }
 
-//        Log.d("111111111tag","moveDirection = $moveDirection")
-//        Log.d("111111111tag","newCoordinates = $newCoordinates")
-//        Log.d("111111111tag","notification = $notification")
-        Log.d("fffffffffffTAG", "notification = $notification")
-
-
         announcement(notification)
         delay(1500L)
         return newCoordinates
@@ -96,7 +90,6 @@ object GameMoves: TextToSpeech.OnInitListener {
 
     private fun getPlusOrMinus(): Int = plusOrMinus.random()
 
-
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
             // set US English as language for tts
@@ -107,7 +100,6 @@ object GameMoves: TextToSpeech.OnInitListener {
             } else {
 //                btnObjectDetection.isEnabled = true
             }
-
         } else {
             Log.e("TTS", "Initialization Failed!")
         }

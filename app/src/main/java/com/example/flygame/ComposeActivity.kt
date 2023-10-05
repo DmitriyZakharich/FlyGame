@@ -29,7 +29,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -41,6 +43,7 @@ import com.example.flygame.gamefield.GameViewModel
 import com.example.flygame.instructions.AppSettingsState
 import com.example.flygame.instructions.AppSettingsViewModel
 import com.example.flygame.instructions.InstructionsScreen
+import com.example.flygame.instructions.TypeInstruction
 import com.example.flygame.settings.BottomSheetSettings
 import com.example.flygame.ui.theme.FlyGameTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -87,7 +90,7 @@ fun MainScreen(name: String, modifier: Modifier = Modifier) {
     val showInstructionsDialog = remember { mutableStateOf(false) }
 
     if (showInstructionsDialog.value || firstIntroduction.showInstructions){
-        InstructionsScreen(showInstructionsDialog){
+        InstructionsScreen(TypeInstruction.GENERAL, showInstructionsDialog){
             appSettingsViewModel.setAppSettings(AppSettingsState.Instructions(false))
         }
     }
@@ -149,7 +152,9 @@ fun MainScreen(name: String, modifier: Modifier = Modifier) {
                 Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .background(Color.Red)) {
+                    .paint(painterResource(id = R.drawable.wood_background_4),
+                        contentScale = ContentScale.FillBounds)) {
+
                 BottomSheetSettings(gameViewModel)
 
             }

@@ -10,3 +10,8 @@ enum class Event {
     ON_NEXT,
     ON_COMPLETED
 }
+
+enum class TypeInstruction {
+    GENERAL,
+    VOLUMETRIC_FIELD
+}
