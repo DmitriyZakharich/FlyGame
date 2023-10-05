@@ -1,6 +1,5 @@
 package com.example.flygame.instructions
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -22,6 +21,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,10 +39,7 @@ fun InstructionsScreen(typeInstruction: TypeInstruction, showInstructionsDialog:
     val instructionData by viewModel.stateInstructionData.collectAsState()
     val instructionsSize by viewModel.stateInstructionsSize.collectAsState()
 
-    val currentStepProgressBar = remember { mutableIntStateOf(0) }
-
-    Log.d("ppppppppTAG", "instructionsSize $instructionsSize")
-
+    var currentStepProgressBar by remember { mutableIntStateOf(0) }
 
     Dialog(
         onDismissRequest = {
@@ -90,7 +87,7 @@ fun InstructionsScreen(typeInstruction: TypeInstruction, showInstructionsDialog:
                 StepsProgressBar(
                     modifier = Modifier.fillMaxWidth(),
                     numberOfSteps = instructionsSize,
-                    currentStep = currentStepProgressBar.intValue
+                    currentStep = currentStepProgressBar
                 )
 
                 Row(Modifier.padding(top = 10.dp)) {
@@ -108,11 +105,11 @@ fun InstructionsScreen(typeInstruction: TypeInstruction, showInstructionsDialog:
                         Text(text = "Exit")
                     }
 
-                    if (instructionData.event == Event.ON_NEXT)
+                    if (currentStepProgressBar < instructionsSize - 1)
                         Button(
                             onClick = {
                                 viewModel.getNextInstruction()
-                                currentStepProgressBar.intValue++
+                                currentStepProgressBar++
                             },
                             Modifier
                                 .fillMaxWidth()

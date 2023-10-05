@@ -1,6 +1,5 @@
 package com.example.flygame.instructions
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.flygame.R
@@ -24,15 +23,7 @@ class InstructionsViewModel @Inject constructor(
     private val _stateInstructionsSize: MutableStateFlow<Int> = MutableStateFlow(0)
     val stateInstructionsSize: StateFlow<Int> = _stateInstructionsSize
 
-    init {
-        Log.d("ppppppppTAG", "init ")
-//        instructions.addAll(instructionsModel.generalInstructions)
-//        _stateInstructionsSize.value = instructions.size + 1    // "+ 1" потому что есть нулевое значение initInstructionData
-    }
-
     fun loadInstruction(typeInstruction: TypeInstruction) {
-        Log.d("ppppppppTAG", "loadInstruction ")
-
         when (typeInstruction) {
             TypeInstruction.GENERAL -> {
                 instructions.addAll(instructionsModel.generalInstructions)
