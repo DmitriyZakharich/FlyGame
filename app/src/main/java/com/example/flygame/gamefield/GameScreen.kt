@@ -160,6 +160,6 @@ fun MyCell(
 fun PreviewFlatField() {
     FlatField(
         settings = SettingsData(),
-        GameViewModel(SettingsStore(context = LocalContext.current.applicationContext))
+        GameViewModel(SettingsStore(context = LocalContext.current.applicationContext), GameMoves())
     )
 }

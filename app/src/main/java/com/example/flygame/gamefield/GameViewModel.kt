@@ -1,24 +1,22 @@
 package com.example.flygame.gamefield
 
-import android.speech.tts.TextToSpeech
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.flygame.App
 import com.example.flygame.settings.SettingsStore
 import com.example.flygame.settings.models.Coordinates
 import com.example.flygame.settings.models.SettingsData
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import java.util.*
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class GameViewModel @Inject constructor(
-    private val settingsStore: SettingsStore
-) : ViewModel(), TextToSpeech.OnInitListener {
+    private val settingsStore: SettingsStore,
+    private val gameMoves: GameMoves
+) : ViewModel() {
 
     private val _stateCoordinatesFly: MutableStateFlow<Coordinates> = MutableStateFlow(Coordinates())
     val stateCoordinatesFly: StateFlow<Coordinates> = _stateCoordinatesFly
@@ -29,7 +27,6 @@ class GameViewModel @Inject constructor(
     private val _stateWaitingResponse: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val stateWaitingResponse: StateFlow<Boolean> = _stateWaitingResponse
 
-    private val textToSpeech: TextToSpeech = TextToSpeech(App.appContext, this)
     private var coordinatesFly = Coordinates()
     private var job: Job? = null
 
@@ -69,24 +66,8 @@ class GameViewModel @Inject constructor(
 
     private suspend fun gameProcess(tableSize: Int, numberOfMoves: Int, isVolume: Boolean) {
         for (i in 1..numberOfMoves) {
-            coordinatesFly = GameMoves.getMove(coordinatesFly, tableSize, isVolume)
+            coordinatesFly = gameMoves.getMove(coordinatesFly, tableSize, isVolume)
             _stateCoordinatesFly.emit(coordinatesFly)
-        }
-    }
-
-    override fun onInit(status: Int) {
-        if (status == TextToSpeech.SUCCESS) {
-            // set US English as language for tts
-            val result = textToSpeech.setLanguage(Locale.US)
-
-            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                Log.e("TTS", "The Language specified is not supported!")
-            } else {
-//                btnObjectDetection.isEnabled = true
-            }
-
-        } else {
-            Log.e("TTS", "Initialization Failed!")
         }
     }
 
