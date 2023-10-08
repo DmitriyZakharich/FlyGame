@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.flygame.about_app.AboutAppScreen
 import com.example.flygame.about_app.MyNavigationDrawer
+import com.example.flygame.gamefield.GameStatus
 import com.example.flygame.gamefield.GameViewModel
 import com.example.flygame.instructions.AppSettingsState
 import com.example.flygame.instructions.AppSettingsViewModel
@@ -73,15 +74,16 @@ fun MainScreen(name: String, modifier: Modifier = Modifier) {
     val scope = rememberCoroutineScope()
 
     val gameViewModel: GameViewModel = viewModel()
-    val isGameProcess by gameViewModel.stateGameProcess.collectAsState()
-    val waitingResponse by gameViewModel.stateWaitingResponse.collectAsState()
+    val gameStatus by gameViewModel.stateGameStatus.collectAsState()
+//    val isGameProcess by gameViewModel.stateGameProcess.collectAsState()
+//    val waitingResponse by gameViewModel.stateWaitingResponse.collectAsState()
     val textButton = remember { mutableStateOf("Старт") }
 
     textButton.value =
-        when {
-            isGameProcess && !waitingResponse -> "Игра"
-            waitingResponse -> "Ожидание ответа"
-            else -> "Старт"
+        when(gameStatus) {
+            GameStatus.GIVE_COMMANDS -> "Игра"
+            GameStatus.WAITING_RESPONSE -> "Ожидание ответа"
+            GameStatus.STOP -> "Старт"
         }
 
 
@@ -141,7 +143,7 @@ fun MainScreen(name: String, modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(5.dp),
-                enabled = !isGameProcess
+                enabled = gameStatus == GameStatus.STOP
             ) {
                 Text(text = textButton.value, fontSize = 25.sp)
             }

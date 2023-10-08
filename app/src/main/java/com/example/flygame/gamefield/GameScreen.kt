@@ -32,7 +32,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.flygame.R
 import com.example.flygame.settings.SettingsStore
-import com.example.flygame.settings.models.Coordinates
 import com.example.flygame.settings.models.SettingsData
 import com.example.flygame.swipe_box.VolumetricField
 
@@ -44,10 +43,11 @@ fun Table(gameViewModel: GameViewModel) {
     val settingsState = settingsStore.getData().collectAsState(SettingsData())
     val settings = settingsState.value
 
-    val isGameProcess by gameViewModel.stateGameProcess.collectAsState()
-    val waitingResponse by gameViewModel.stateWaitingResponse.collectAsState()
+    val gameStatus by gameViewModel.stateGameStatus.collectAsState()
+//    val isGameProcess by gameViewModel.stateGameProcess.collectAsState()
+//    val waitingResponse by gameViewModel.stateWaitingResponse.collectAsState()
 
-    if (isGameProcess && !waitingResponse) return   //Скрывать поле во время игры, чтобы представлять его в голове
+    if (gameStatus == GameStatus.GIVE_COMMANDS) return   //Скрывать поле во время игры, чтобы представлять его в голове
 
     if (!settings.isVolume)
         FlatField(settings, gameViewModel)
@@ -112,11 +112,12 @@ fun MyCell(
     gameViewModel: GameViewModel
 ) {
     val coordinatesFly by gameViewModel.stateCoordinatesFly.collectAsState()
-    val isGameProcess by gameViewModel.stateGameProcess.collectAsState()
-    val waitingResponse by gameViewModel.stateWaitingResponse.collectAsState()
+    val gameStatus by gameViewModel.stateGameStatus.collectAsState()
+//    val isGameProcess by gameViewModel.stateGameProcess.collectAsState()
+//    val waitingResponse by gameViewModel.stateWaitingResponse.collectAsState()
     var backgroundColor by remember { mutableStateOf(Color.White) }
 
-    if (isGameProcess)
+    if (gameStatus != GameStatus.STOP)
         backgroundColor = Color.White
 
     Box(
@@ -124,7 +125,7 @@ fun MyCell(
             .background(backgroundColor)
             .clip(RoundedCornerShape(5.dp))
             .clickable {
-                if (isGameProcess && waitingResponse) {
+                if (gameStatus != GameStatus.STOP) {
                     backgroundColor = if (id == coordinatesFly) {
                         Color.Green
                     } else
@@ -143,7 +144,7 @@ fun MyCell(
             contentDescription = "texture",
         )
 
-        if (id == coordinatesFly && !isGameProcess) {
+        if (id == coordinatesFly && gameStatus == GameStatus.STOP) {
             Image(
                 painter = painterResource(id = R.drawable.icon_fly_2_w_trans),
                 contentDescription = "icon",

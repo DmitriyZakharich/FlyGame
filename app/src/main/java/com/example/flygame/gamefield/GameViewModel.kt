@@ -3,7 +3,6 @@ package com.example.flygame.gamefield
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.flygame.settings.SettingsStore
-import com.example.flygame.settings.models.Coordinates
 import com.example.flygame.settings.models.SettingsData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -21,11 +20,15 @@ class GameViewModel @Inject constructor(
     private val _stateCoordinatesFly: MutableStateFlow<Coordinates> = MutableStateFlow(Coordinates())
     val stateCoordinatesFly: StateFlow<Coordinates> = _stateCoordinatesFly
 
-    private val _stateGameProcess: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val stateGameProcess: StateFlow<Boolean> = _stateGameProcess
+    /**Изменить enum "Статус игры" и "*/
+    private val _stateGameStatus: MutableStateFlow<GameStatus> = MutableStateFlow(GameStatus.STOP)
+    val stateGameStatus: StateFlow<GameStatus> = _stateGameStatus
 
-    private val _stateWaitingResponse: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val stateWaitingResponse: StateFlow<Boolean> = _stateWaitingResponse
+//    private val _stateGameProcess: MutableStateFlow<Boolean> = MutableStateFlow(false)
+//    val stateGameProcess: StateFlow<Boolean> = _stateGameProcess
+//
+//    private val _stateWaitingResponse: MutableStateFlow<Boolean> = MutableStateFlow(false)
+//    val stateWaitingResponse: StateFlow<Boolean> = _stateWaitingResponse
 
     private var coordinatesFly = Coordinates()
     private var job: Job? = null
@@ -52,11 +55,10 @@ class GameViewModel @Inject constructor(
     fun startGame() {
         job = viewModelScope.launch {
             settingsStore.getData().collect {
-
-                _stateGameProcess.emit(true)
+                _stateGameStatus.emit(GameStatus.GIVE_COMMANDS)
                 settingInitialCoordinates(it)
                 gameProcess(it.tableSize, it.numberOfMoves, it.isVolume)
-                _stateWaitingResponse.emit(true)
+                _stateGameStatus.emit(GameStatus.WAITING_RESPONSE)
                 job?.cancel()
             }
 //            onResult(result) // onResult is called on the main thread
@@ -73,8 +75,8 @@ class GameViewModel @Inject constructor(
 
     fun stopGame() {
         viewModelScope.launch{
-            _stateGameProcess.emit(false)
-            _stateWaitingResponse.emit(false)
+            _stateGameStatus.emit(GameStatus.STOP)
+//            _stateWaitingResponse.emit(false)
         }
     }
 }

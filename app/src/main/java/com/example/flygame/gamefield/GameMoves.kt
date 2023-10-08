@@ -3,7 +3,6 @@ package com.example.flygame.gamefield
 import android.speech.tts.TextToSpeech
 import android.util.Log
 import com.example.flygame.App
-import com.example.flygame.settings.models.Coordinates
 import kotlinx.coroutines.delay
 import java.util.Locale
 import javax.inject.Inject
@@ -20,6 +19,7 @@ class GameMoves @Inject constructor(): TextToSpeech.OnInitListener {
         tableSize: Int,
         isVolume: Boolean
     ): Coordinates {
+
         var notification = ""
         var successfulMove = false
         var newCoordinates = Coordinates()
@@ -33,7 +33,6 @@ class GameMoves @Inject constructor(): TextToSpeech.OnInitListener {
                 continue
 
             previousMove = Pair(moveDirection, move)
-
 
             when (moveDirection) {
                 "X" -> if ((coordinatesFly.horizontalX + move) in 0 until tableSize) {
@@ -75,13 +74,13 @@ class GameMoves @Inject constructor(): TextToSpeech.OnInitListener {
             }
         }
 
-        delay(1500L)
         announcement(notification)
+        delay(1500L)
         return newCoordinates
     }
 
-    private fun announcement(notification: String) {
-        textToSpeech.setSpeechRate(1f)
+    private suspend fun announcement(notification: String) {
+        textToSpeech.setSpeechRate(3f)
         textToSpeech.language = Locale("ru")
 
 //        val n = arrayListOf(
@@ -94,7 +93,14 @@ class GameMoves @Inject constructor(): TextToSpeech.OnInitListener {
 //            "вверх",
 //            "стоп"
 //        )
-//        textToSpeech.speak(n.toString(), TextToSpeech.QUEUE_ADD, null, "")
+////        textToSpeech.speak(n.toString(), TextToSpeech.QUEUE_ADD, null, "")
+//
+//        n.forEach {
+//            if (false)
+//                delay(2000L)
+//            textToSpeech.speak(it, TextToSpeech.QUEUE_ADD, null, "")
+//        }
+
         textToSpeech.speak(notification, TextToSpeech.QUEUE_ADD, null, "")
     }
 

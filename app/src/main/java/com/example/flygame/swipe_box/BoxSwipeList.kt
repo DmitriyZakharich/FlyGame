@@ -26,7 +26,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import com.example.flygame.gamefield.FlatField
 import com.example.flygame.gamefield.GameViewModel
-import com.example.flygame.settings.models.Coordinates
 import com.example.flygame.settings.models.SettingsData
 
 //@Preview
