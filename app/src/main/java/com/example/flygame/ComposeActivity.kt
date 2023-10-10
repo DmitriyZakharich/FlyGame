@@ -1,10 +1,8 @@
 package com.example.flygame
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,7 +28,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -48,7 +45,6 @@ import com.example.flygame.instructions.TypeInstruction
 import com.example.flygame.settings.BottomSheetSettings
 import com.example.flygame.ui.theme.FlyGameTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -68,15 +64,13 @@ class ComposeActivity : ComponentActivity() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, DelicateCoroutinesApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(name: String, modifier: Modifier = Modifier) {
     val scope = rememberCoroutineScope()
 
     val gameViewModel: GameViewModel = viewModel()
     val gameStatus by gameViewModel.stateGameStatus.collectAsState()
-//    val isGameProcess by gameViewModel.stateGameProcess.collectAsState()
-//    val waitingResponse by gameViewModel.stateWaitingResponse.collectAsState()
     val textButton = remember { mutableStateOf("Старт") }
 
     textButton.value =
@@ -89,9 +83,10 @@ fun MainScreen(name: String, modifier: Modifier = Modifier) {
 
     val appSettingsViewModel: AppSettingsViewModel = viewModel()
     val firstIntroduction by appSettingsViewModel.data.collectAsState()
-    val showInstructionsDialog = remember { mutableStateOf(false) }
+    val showInstructionsDialog = remember { mutableStateOf(Pair(TypeInstruction.GENERAL, false)) }
+//    val showInstructionsDialog = remember { mutableStateOf(false) }
 
-    if (showInstructionsDialog.value || firstIntroduction.showInstructions){
+    if (showInstructionsDialog.value.second || firstIntroduction.showInstructions){
         InstructionsScreen(TypeInstruction.GENERAL, showInstructionsDialog){
             appSettingsViewModel.setAppSettings(AppSettingsState.Instructions(false))
         }
@@ -127,7 +122,9 @@ fun MainScreen(name: String, modifier: Modifier = Modifier) {
                 },
                 title = { /*TODO*/ },
                 actions = {
-                    IconButton(onClick = { showInstructionsDialog.value = true }) {
+                    IconButton(onClick = {
+                        showInstructionsDialog.value = Pair(TypeInstruction.GENERAL, true)
+                    }) {
                         Icon(painterResource(
                             id = R.drawable.ic_question),
                             contentDescription = "Инструкция")
@@ -154,8 +151,10 @@ fun MainScreen(name: String, modifier: Modifier = Modifier) {
                 Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .paint(painterResource(id = R.drawable.wood_background_4),
-                        contentScale = ContentScale.FillBounds)) {
+                    .paint(
+                        painterResource(id = R.drawable.wood_background_4),
+                        contentScale = ContentScale.FillBounds
+                    )) {
 
                 BottomSheetSettings(gameViewModel)
 

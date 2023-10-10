@@ -47,4 +47,14 @@ class InstructionsModel @Inject constructor() {
             )
         )
     }
+
+    val instructionsHideField = mutableListOf<InstructionData>().apply {
+        add(
+            InstructionData(
+                R.drawable.icon_fly,
+                "Для лучшего эффекта от тренировок лучше во время игры представлять поле у себя в воображении"
+            )
+        )
+//        add(InstructionData(R.drawable.icon_fly, "Представьте, что есть глубина"))
+    }
 }

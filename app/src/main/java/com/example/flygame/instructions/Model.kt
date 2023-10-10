@@ -7,5 +7,6 @@ data class InstructionData(
 
 enum class TypeInstruction {
     GENERAL,
-    VOLUMETRIC_FIELD
+    VOLUMETRIC_FIELD,
+    HIDE_FIELD
 }

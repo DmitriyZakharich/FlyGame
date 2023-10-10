@@ -30,7 +30,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -49,17 +48,18 @@ import com.example.flygame.settings.viewstate.SettingsState
 fun SettingsScreen() {
     val viewModel: SettingsViewModel = viewModel()
     val settingsData = viewModel.data.collectAsState()
-    val checkedState = remember { mutableStateOf(settingsData.value.spinnerIsVolume) }
+    val checkedStateVolume = remember { mutableStateOf(settingsData.value.spinnerIsVolume) }
+    val checkedStateHideField = remember { mutableStateOf(settingsData.value.spinnerIsHideField) }
 
     val callback : (SettingsState) -> Unit = { state ->
         viewModel.spinnerItemSelected(state)
     }
 
     val appSettingsViewModel: AppSettingsViewModel = viewModel()
-    val firstIntroduction by appSettingsViewModel.data.collectAsState()
-    val showInstructionsDialog = remember { mutableStateOf(false) }
-    if (showInstructionsDialog.value ){
-        InstructionsScreen(TypeInstruction.VOLUMETRIC_FIELD, showInstructionsDialog){
+    val showInstructionsDialog = remember { mutableStateOf(Pair(TypeInstruction.VOLUMETRIC_FIELD, false)) }
+
+    if (showInstructionsDialog.value.second ){
+        InstructionsScreen(showInstructionsDialog.value.first, showInstructionsDialog){
             appSettingsViewModel.setAppSettings(AppSettingsState.Instructions(false))
         }
     }
@@ -93,14 +93,18 @@ fun SettingsScreen() {
                     contentDescription = "Инструкция",
                     Modifier
                         .padding(start = 5.dp)
-                        .clickable { showInstructionsDialog.value = true },
+                        .clickable {
+                            showInstructionsDialog.value =
+                                Pair(TypeInstruction.VOLUMETRIC_FIELD, true)
+//                            showInstructionsDialog.value = true
+                        },
                 )
 
             }
             Switch(
                 checked = settingsData.value.spinnerIsVolume,
                 onCheckedChange = {
-                    checkedState.value = it
+                    checkedStateVolume.value = it
                     viewModel.clickListener(SettingsState.Volume(it))
                 }
             )
@@ -123,11 +127,36 @@ fun SettingsScreen() {
             state = settingsData.value.spinnerNumberOfMoves,
             callback
         )
-        Text(
-            text = stringResource(id = R.string.hide_field),
-            color = Color.Blue,
-            fontSize = 30.sp
-        )
+
+        Row(modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically) {
+            MyText(
+                id = R.string.hide_field,
+                Modifier
+            )
+            Box(
+                modifier = Modifier.weight(1f),
+                contentAlignment = Alignment.CenterStart) {
+                Icon(
+                    painterResource(
+                        id = R.drawable.ic_circle_question),
+                    contentDescription = "Инструкция",
+                    Modifier
+                        .padding(start = 5.dp)
+                        .clickable {
+                            showInstructionsDialog.value = Pair(TypeInstruction.HIDE_FIELD, true)
+                        },
+                )
+
+            }
+            Switch(
+                checked = settingsData.value.spinnerIsHideField,
+                onCheckedChange = {
+                    checkedStateHideField.value = it
+                    viewModel.clickListener(SettingsState.HideField(it))
+                }
+            )
+        }
         Text(
             text = stringResource(id = R.string.complication),
             color = Color.Blue,
@@ -149,7 +178,9 @@ fun MySpinnerRow(
             id = id,
             modifier = Modifier.weight(4f)
         )
-        Box(modifier = Modifier.wrapContentSize().weight(1.8f)){
+        Box(modifier = Modifier
+            .wrapContentSize()
+            .weight(1.8f)){
             MySpinner(id, options, state, onSelect)
         }
     }

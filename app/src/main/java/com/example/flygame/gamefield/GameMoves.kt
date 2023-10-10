@@ -75,13 +75,13 @@ class GameMoves @Inject constructor(): TextToSpeech.OnInitListener {
         }
 
         announcement(notification)
-        delay(1500L)
         return newCoordinates
     }
 
     private suspend fun announcement(notification: String) {
         textToSpeech.setSpeechRate(3f)
         textToSpeech.language = Locale("ru")
+
 
 //        val n = arrayListOf(
 //            "старт",
@@ -102,6 +102,7 @@ class GameMoves @Inject constructor(): TextToSpeech.OnInitListener {
 //        }
 
         textToSpeech.speak(notification, TextToSpeech.QUEUE_ADD, null, "")
+        delay(1000L)
     }
 
     private fun getMovePlane(isVolume: Boolean): String {

@@ -36,7 +36,8 @@ class SettingsViewModel @Inject constructor(
         spinnerIsVolume = data.isVolume,
         spinnerSpeed = listSpeed.indexOf(data.speed.toString()),
         spinnerVoice = listVoiceArrows.indexOf(data.voice),
-        spinnerNumberOfMoves = listNumberOfMoves.indexOf(data.numberOfMoves.toString())
+        spinnerNumberOfMoves = listNumberOfMoves.indexOf(data.numberOfMoves.toString()),
+        spinnerIsHideField = data.isHideField
     )
 
     fun spinnerItemSelected(state: SettingsState) {

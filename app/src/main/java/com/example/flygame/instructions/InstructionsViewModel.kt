@@ -33,6 +33,10 @@ class InstructionsViewModel @Inject constructor(
                 instructions.addAll(instructionsModel.instructionsVolumetricField)
                 _stateInstructionsSize.value = instructions.size + 1    // "+ 1" потому что есть нулевое значение initInstructionData
             }
+            TypeInstruction.HIDE_FIELD -> {
+                instructions.addAll(instructionsModel.instructionsHideField)
+                _stateInstructionsSize.value = instructions.size + 1    // "+ 1" потому что есть нулевое значение initInstructionData
+            }
         }
     }
 

@@ -32,18 +32,17 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun InstructionsScreen(typeInstruction: TypeInstruction, showInstructionsDialog: MutableState<Boolean>, closeDialog: () -> Unit) {
+fun InstructionsScreen(typeInstruction: TypeInstruction, showInstructionsDialog: MutableState<Pair<TypeInstruction, Boolean>>, closeDialog: () -> Unit) {
 
     val viewModel: InstructionsViewModel = viewModel()
     viewModel.loadInstruction(typeInstruction)
     val instructionData by viewModel.stateInstructionData.collectAsState()
     val instructionsSize by viewModel.stateInstructionsSize.collectAsState()
-
     var currentStepProgressBar by remember { mutableIntStateOf(0) }
 
     Dialog(
         onDismissRequest = {
-            showInstructionsDialog.value = false
+            showInstructionsDialog.value = Pair(typeInstruction, false)
             closeDialog()
             viewModel.restart()
         }
@@ -93,7 +92,8 @@ fun InstructionsScreen(typeInstruction: TypeInstruction, showInstructionsDialog:
                 Row(Modifier.padding(top = 10.dp)) {
                     OutlinedButton(
                         onClick = {
-                            showInstructionsDialog.value = false
+                            showInstructionsDialog.value = Pair(typeInstruction, false)
+//                            showInstructionsDialog.value = false
                             closeDialog()
                             viewModel.restart()
                         },

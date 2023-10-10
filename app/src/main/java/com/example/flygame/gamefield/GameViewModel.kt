@@ -20,15 +20,8 @@ class GameViewModel @Inject constructor(
     private val _stateCoordinatesFly: MutableStateFlow<Coordinates> = MutableStateFlow(Coordinates())
     val stateCoordinatesFly: StateFlow<Coordinates> = _stateCoordinatesFly
 
-    /**Изменить enum "Статус игры" и "*/
     private val _stateGameStatus: MutableStateFlow<GameStatus> = MutableStateFlow(GameStatus.STOP)
     val stateGameStatus: StateFlow<GameStatus> = _stateGameStatus
-
-//    private val _stateGameProcess: MutableStateFlow<Boolean> = MutableStateFlow(false)
-//    val stateGameProcess: StateFlow<Boolean> = _stateGameProcess
-//
-//    private val _stateWaitingResponse: MutableStateFlow<Boolean> = MutableStateFlow(false)
-//    val stateWaitingResponse: StateFlow<Boolean> = _stateWaitingResponse
 
     private var coordinatesFly = Coordinates()
     private var job: Job? = null
@@ -76,7 +69,6 @@ class GameViewModel @Inject constructor(
     fun stopGame() {
         viewModelScope.launch{
             _stateGameStatus.emit(GameStatus.STOP)
-//            _stateWaitingResponse.emit(false)
         }
     }
 }

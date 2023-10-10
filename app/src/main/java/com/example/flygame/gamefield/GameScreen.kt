@@ -44,10 +44,8 @@ fun Table(gameViewModel: GameViewModel) {
     val settings = settingsState.value
 
     val gameStatus by gameViewModel.stateGameStatus.collectAsState()
-//    val isGameProcess by gameViewModel.stateGameProcess.collectAsState()
-//    val waitingResponse by gameViewModel.stateWaitingResponse.collectAsState()
 
-    if (gameStatus == GameStatus.GIVE_COMMANDS) return   //Скрывать поле во время игры, чтобы представлять его в голове
+    if (gameStatus == GameStatus.GIVE_COMMANDS && settings.isHideField) return   //Скрывать поле во время команд
 
     if (!settings.isVolume)
         FlatField(settings, gameViewModel)
@@ -113,8 +111,6 @@ fun MyCell(
 ) {
     val coordinatesFly by gameViewModel.stateCoordinatesFly.collectAsState()
     val gameStatus by gameViewModel.stateGameStatus.collectAsState()
-//    val isGameProcess by gameViewModel.stateGameProcess.collectAsState()
-//    val waitingResponse by gameViewModel.stateWaitingResponse.collectAsState()
     var backgroundColor by remember { mutableStateOf(Color.White) }
 
     if (gameStatus != GameStatus.STOP)
