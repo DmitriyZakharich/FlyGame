@@ -147,7 +147,6 @@ fun SettingsScreen() {
                             showInstructionsDialog.value = Pair(TypeInstruction.HIDE_FIELD, true)
                         },
                 )
-
             }
             Switch(
                 checked = settingsData.value.spinnerIsHideField,

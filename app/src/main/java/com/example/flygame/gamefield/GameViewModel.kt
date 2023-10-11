@@ -1,5 +1,11 @@
 package com.example.flygame.gamefield
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.flygame.settings.SettingsStore
@@ -15,7 +21,7 @@ import javax.inject.Inject
 class GameViewModel @Inject constructor(
     private val settingsStore: SettingsStore,
     private val gameMoves: GameMoves
-) : ViewModel() {
+) : ViewModel(), DefaultLifecycleObserver {
 
     private val _stateCoordinatesFly: MutableStateFlow<Coordinates> = MutableStateFlow(Coordinates())
     val stateCoordinatesFly: StateFlow<Coordinates> = _stateCoordinatesFly
@@ -50,25 +56,53 @@ class GameViewModel @Inject constructor(
             settingsStore.getData().collect {
                 _stateGameStatus.emit(GameStatus.GIVE_COMMANDS)
                 settingInitialCoordinates(it)
-                gameProcess(it.tableSize, it.numberOfMoves, it.isVolume)
-                _stateGameStatus.emit(GameStatus.WAITING_RESPONSE)
+                val isSuccessful = gameProcess(it.tableSize, it.numberOfMoves, it.isVolume)
+                if (isSuccessful)
+                    _stateGameStatus.emit(GameStatus.WAITING_RESPONSE)
+
                 job?.cancel()
             }
-//            onResult(result) // onResult is called on the main thread
         }
     }
 
 
-    private suspend fun gameProcess(tableSize: Int, numberOfMoves: Int, isVolume: Boolean) {
+    private suspend fun gameProcess(tableSize: Int, numberOfMoves: Int, isVolume: Boolean): Boolean {
         for (i in 1..numberOfMoves) {
+            if (stateGameStatus.value == GameStatus.STOP) return false
             coordinatesFly = gameMoves.getMove(coordinatesFly, tableSize, isVolume)
             _stateCoordinatesFly.emit(coordinatesFly)
         }
+        return true
     }
 
     fun stopGame() {
         viewModelScope.launch{
             _stateGameStatus.emit(GameStatus.STOP)
+        }
+    }
+
+    private fun breakGame() {
+        viewModelScope.launch {
+            _stateGameStatus.emit(GameStatus.STOP)
+            settingsStore.getData().collect {
+                settingInitialCoordinates(it)
+                job?.cancel()
+            }
+        }
+    }
+
+    override fun onStop(owner: LifecycleOwner) {
+        super.onStop(owner)
+        breakGame()
+    }
+}
+
+@Composable
+fun <viewModel : LifecycleObserver> viewModel.observeLifecycleEvents(lifecycle: Lifecycle) {
+    DisposableEffect(lifecycle) {
+        lifecycle.addObserver(this@observeLifecycleEvents)
+        onDispose {
+            lifecycle.removeObserver(this@observeLifecycleEvents)
         }
     }
 }

@@ -32,7 +32,11 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun InstructionsScreen(typeInstruction: TypeInstruction, showInstructionsDialog: MutableState<Pair<TypeInstruction, Boolean>>, closeDialog: () -> Unit) {
+fun InstructionsScreen(
+    typeInstruction: TypeInstruction,
+    showInstructionsDialog: MutableState<Pair<TypeInstruction, Boolean>>,
+    closeDialog: () -> Unit
+) {
 
     val viewModel: InstructionsViewModel = viewModel()
     viewModel.loadInstruction(typeInstruction)

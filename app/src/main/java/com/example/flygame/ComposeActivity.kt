@@ -1,6 +1,7 @@
 package com.example.flygame
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
@@ -29,6 +30,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -38,6 +40,7 @@ import com.example.flygame.about_app.AboutAppScreen
 import com.example.flygame.about_app.MyNavigationDrawer
 import com.example.flygame.gamefield.GameStatus
 import com.example.flygame.gamefield.GameViewModel
+import com.example.flygame.gamefield.observeLifecycleEvents
 import com.example.flygame.instructions.AppSettingsState
 import com.example.flygame.instructions.AppSettingsViewModel
 import com.example.flygame.instructions.InstructionsScreen
@@ -49,6 +52,7 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ComposeActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -73,12 +77,17 @@ fun MainScreen(name: String, modifier: Modifier = Modifier) {
     val gameStatus by gameViewModel.stateGameStatus.collectAsState()
     val textButton = remember { mutableStateOf("Старт") }
 
+    gameViewModel.observeLifecycleEvents(LocalLifecycleOwner.current.lifecycle)
+
+
     textButton.value =
         when(gameStatus) {
             GameStatus.GIVE_COMMANDS -> "Игра"
             GameStatus.WAITING_RESPONSE -> "Ожидание ответа"
             GameStatus.STOP -> "Старт"
         }
+
+    Log.d("TA22222G", "MainScreen gameStatus: ${gameStatus}")
 
 
     val appSettingsViewModel: AppSettingsViewModel = viewModel()
@@ -157,7 +166,6 @@ fun MainScreen(name: String, modifier: Modifier = Modifier) {
                     )) {
 
                 BottomSheetSettings(gameViewModel)
-
             }
         }
     )
