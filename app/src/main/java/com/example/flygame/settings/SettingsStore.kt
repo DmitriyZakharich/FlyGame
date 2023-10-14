@@ -8,8 +8,10 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.example.flygame.instructions.TypesCommands
 import com.example.flygame.settings.models.SettingsData
 import com.example.flygame.settings.models.SettingsKeys
+import com.example.flygame.settings.models.listTypesCommands
 import com.example.flygame.settings.viewstate.SettingsState
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -26,7 +28,7 @@ class SettingsStore @Inject constructor(@ApplicationContext private val context:
             tableSize = preferences[intPreferencesKey(SettingsKeys.TABLE_SIZE_KEY)] ?: 3,
             isVolume = preferences[booleanPreferencesKey(SettingsKeys.VOLUME_KEY)] ?: false,
             speed = preferences[intPreferencesKey(SettingsKeys.SPEED_KEY)] ?: 5,
-            voice = preferences[stringPreferencesKey(SettingsKeys.VOICE_KEY)] ?: "Voice",
+            typesCommands = preferences[stringPreferencesKey(SettingsKeys.TYPE_COMMANDS_KEY)] ?: listTypesCommands[0],
             numberOfMoves = preferences[intPreferencesKey(SettingsKeys.NUMBER_OF_MOVES_KEY)] ?: 5,
             isHideField = preferences[booleanPreferencesKey(SettingsKeys.HIDE_FIELD_KEY)] ?: false,
         )

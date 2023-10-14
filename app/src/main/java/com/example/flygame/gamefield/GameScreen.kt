@@ -16,13 +16,17 @@ import androidx.compose.foundation.shape.AbsoluteCutCornerShape
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.FloatState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
@@ -30,6 +34,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.example.flygame.R
 import com.example.flygame.settings.SettingsStore
 import com.example.flygame.settings.models.SettingsData
@@ -44,6 +49,7 @@ fun Table(gameViewModel: GameViewModel) {
     val settings = settingsState.value
 
     val gameStatus by gameViewModel.stateGameStatus.collectAsState()
+    val arrowCommand = gameViewModel.stateCommandArrow.collectAsState()
 
     if (gameStatus == GameStatus.GIVE_COMMANDS && settings.isHideField) return   //Скрывать поле во время команд
 
@@ -51,6 +57,9 @@ fun Table(gameViewModel: GameViewModel) {
         FlatField(settings, gameViewModel)
     else
         VolumetricField(settings, gameViewModel)
+
+    ArrowCommand(arrowCommand)
+
 }
 
 @Composable
@@ -126,7 +135,7 @@ fun MyCell(
                         Color.Green
                     } else
                         Color.Red
-                    gameViewModel.stopGame()
+                    gameViewModel.endGame()
                 }
             }
     ) {
@@ -152,11 +161,39 @@ fun MyCell(
     }
 }
 
+@Composable
+fun ArrowCommand(arrowCommand: State<DirectionMove>) {
+    if (arrowCommand.value == DirectionMove.NULL) return
+
+    val stateRotate = remember {
+        mutableFloatStateOf(0f)
+    }
+    stateRotate.floatValue = when (arrowCommand.value) {
+        DirectionMove.UP -> -90f
+        DirectionMove.DOWN -> 90f
+        DirectionMove.LEFT -> 180f
+        DirectionMove.RIGHT -> 0f
+        DirectionMove.FORWARD -> 75f
+        DirectionMove.BACK -> 25f
+        DirectionMove.NULL -> 0f
+    }
+
+    Image(
+        painter = painterResource(id = R.drawable.wooden_arrow),
+        contentDescription = "icon",
+        modifier = Modifier
+            .fillMaxSize(0.4f)
+            .clip(CircleShape)
+            .zIndex(1f)
+            .rotate(stateRotate.floatValue)
+    )
+}
+
 @Preview
 @Composable
 fun PreviewFlatField() {
     FlatField(
         settings = SettingsData(),
-        GameViewModel(SettingsStore(context = LocalContext.current.applicationContext), GameMoves())
+        GameViewModel(SettingsStore(context = LocalContext.current.applicationContext), MoveManager(), Announcer())
     )
 }

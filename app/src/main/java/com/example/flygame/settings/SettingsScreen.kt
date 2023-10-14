@@ -41,7 +41,7 @@ import com.example.flygame.instructions.TypeInstruction
 import com.example.flygame.settings.models.listNumberOfMoves
 import com.example.flygame.settings.models.listSpeed
 import com.example.flygame.settings.models.listTableSizes
-import com.example.flygame.settings.models.listVoiceArrows
+import com.example.flygame.settings.models.listTypesCommands
 import com.example.flygame.settings.viewstate.SettingsState
 
 @Composable
@@ -117,8 +117,8 @@ fun SettingsScreen() {
         )
         MySpinnerRow(
             id = R.string.voice,
-            options = listVoiceArrows,
-            state = settingsData.value.spinnerVoice,
+            options = listTypesCommands,
+            state = settingsData.value.spinnerTypesCommands,
             callback
         )
         MySpinnerRow(

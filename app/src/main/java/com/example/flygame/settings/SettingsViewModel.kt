@@ -7,7 +7,7 @@ import com.example.flygame.settings.models.SettingsViewData
 import com.example.flygame.settings.models.listNumberOfMoves
 import com.example.flygame.settings.models.listSpeed
 import com.example.flygame.settings.models.listTableSizes
-import com.example.flygame.settings.models.listVoiceArrows
+import com.example.flygame.settings.models.listTypesCommands
 import com.example.flygame.settings.viewstate.SettingsState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -35,7 +35,7 @@ class SettingsViewModel @Inject constructor(
         spinnerTableSize = listTableSizes.indexOf(data.tableSize.toString()),
         spinnerIsVolume = data.isVolume,
         spinnerSpeed = listSpeed.indexOf(data.speed.toString()),
-        spinnerVoice = listVoiceArrows.indexOf(data.voice),
+        spinnerTypesCommands = listTypesCommands.indexOf(data.typesCommands),
         spinnerNumberOfMoves = listNumberOfMoves.indexOf(data.numberOfMoves.toString()),
         spinnerIsHideField = data.isHideField
     )

@@ -10,8 +10,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.flygame.settings.SettingsStore
 import com.example.flygame.settings.models.SettingsData
+import com.example.flygame.settings.models.listTypesCommands
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -20,7 +22,8 @@ import javax.inject.Inject
 @HiltViewModel
 class GameViewModel @Inject constructor(
     private val settingsStore: SettingsStore,
-    private val gameMoves: GameMoves
+    private val moveManager: MoveManager,
+    private val announcer: Announcer
 ) : ViewModel(), DefaultLifecycleObserver {
 
     private val _stateCoordinatesFly: MutableStateFlow<Coordinates> = MutableStateFlow(Coordinates())
@@ -28,6 +31,9 @@ class GameViewModel @Inject constructor(
 
     private val _stateGameStatus: MutableStateFlow<GameStatus> = MutableStateFlow(GameStatus.STOP)
     val stateGameStatus: StateFlow<GameStatus> = _stateGameStatus
+
+    private val _stateCommandArrow: MutableStateFlow<DirectionMove> = MutableStateFlow(DirectionMove.NULL)
+    val stateCommandArrow: StateFlow<DirectionMove> = _stateCommandArrow
 
     private var coordinatesFly = Coordinates()
     private var job: Job? = null
@@ -56,34 +62,43 @@ class GameViewModel @Inject constructor(
             settingsStore.getData().collect {
                 _stateGameStatus.emit(GameStatus.GIVE_COMMANDS)
                 settingInitialCoordinates(it)
-                val isSuccessful = gameProcess(it.tableSize, it.numberOfMoves, it.isVolume)
-                if (isSuccessful)
-                    _stateGameStatus.emit(GameStatus.WAITING_RESPONSE)
 
+                val finalMoveData = moveManager.start(coordinatesFly, it.tableSize, it.numberOfMoves, it.isVolume)
+                _stateCoordinatesFly.emit(finalMoveData.coordinates)
+
+                when (it.typesCommands) {
+                    listTypesCommands[0] -> {
+                        _stateCommandArrow.emit(DirectionMove.NULL)
+                        announcer.start(finalMoveData.moves)
+                    }
+
+                    listTypesCommands[1] -> {
+                        finalMoveData.moves.forEach { directionMove ->
+                            _stateCommandArrow.emit(directionMove)
+                            delay(1000)
+                            _stateCommandArrow.emit(DirectionMove.NULL)
+                            delay(100)
+                        }
+
+                    }
+                }
+                _stateGameStatus.emit(GameStatus.WAITING_RESPONSE)
                 job?.cancel()
             }
         }
     }
 
-
-    private suspend fun gameProcess(tableSize: Int, numberOfMoves: Int, isVolume: Boolean): Boolean {
-        for (i in 1..numberOfMoves) {
-            if (stateGameStatus.value == GameStatus.STOP) return false
-            coordinatesFly = gameMoves.getMove(coordinatesFly, tableSize, isVolume)
-            _stateCoordinatesFly.emit(coordinatesFly)
-        }
-        return true
-    }
-
-    fun stopGame() {
+    fun endGame() {
         viewModelScope.launch{
             _stateGameStatus.emit(GameStatus.STOP)
+            _stateCommandArrow.emit(DirectionMove.NULL)
         }
     }
 
     private fun breakGame() {
         viewModelScope.launch {
             _stateGameStatus.emit(GameStatus.STOP)
+            _stateCommandArrow.emit(DirectionMove.NULL)
             settingsStore.getData().collect {
                 settingInitialCoordinates(it)
                 job?.cancel()

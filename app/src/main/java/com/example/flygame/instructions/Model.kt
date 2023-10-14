@@ -10,3 +10,8 @@ enum class TypeInstruction {
     VOLUMETRIC_FIELD,
     HIDE_FIELD
 }
+
+enum class TypesCommands {
+    VOICE,
+    ARROWS
+}

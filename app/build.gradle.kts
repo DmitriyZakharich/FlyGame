@@ -3,6 +3,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
+    id("de.mannodermaus.android-junit5") version "1.9.3.0"
 }
 
 android {
@@ -51,6 +52,10 @@ android {
         }
     }
 
+    tasks.withType<Test> {
+        useJUnitPlatform()
+    }
+
 }
 
 dependencies {
@@ -65,14 +70,28 @@ dependencies {
     implementation("androidx.compose.material3:material3:1.2.0-alpha06")
     implementation(platform("androidx.compose:compose-bom:2023.03.00"))
     implementation("androidx.compose.foundation:foundation:1.6.0-alpha04")
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation(platform("androidx.compose:compose-bom:2023.03.00"))
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     androidTestImplementation(platform("androidx.compose:compose-bom:2023.03.00"))
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+
+    //JUnit
+    androidTestImplementation("org.junit.jupiter:junit-jupiter:5.9.3")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.3")
+    testImplementation("org.mockito:mockito-core:4.5.1")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.3")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+
+
+//    testImplementation("junit:junit:4.13.2")
+//    testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
+//    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+//    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+//    androidTestImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
+
+
 
     implementation ("androidx.appcompat:appcompat:1.6.1")
     implementation ("androidx.constraintlayout:constraintlayout:2.1.4")

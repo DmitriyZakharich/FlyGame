@@ -4,23 +4,36 @@ import android.speech.tts.TextToSpeech
 import android.util.Log
 import com.example.flygame.App
 import kotlinx.coroutines.delay
+import java.util.LinkedList
 import java.util.Locale
 import javax.inject.Inject
 
-class GameMoves @Inject constructor(): TextToSpeech.OnInitListener {
+class MoveManager @Inject constructor(): TextToSpeech.OnInitListener {
 
     private val moveDirection = listOf("X", "Y", "Z")
     private val plusOrMinus = listOf(-1, 1)
     private var previousMove = Pair("", 0)
     private val textToSpeech: TextToSpeech = TextToSpeech(App.appContext, this)
 
-    suspend fun getMove(
+    suspend fun start(coordinatesFly: Coordinates, tableSize: Int, numberOfMoves: Int, isVolume: Boolean): FinalMoveData {
+        val moves = LinkedList<DirectionMove>()
+        var newCoordinates = coordinatesFly
+
+        for (i in 1..numberOfMoves) {
+            val moveData = getMove(newCoordinates, tableSize, isVolume)
+            moves.add(moveData.move)
+            newCoordinates = moveData.coordinates
+        }
+        return FinalMoveData(newCoordinates, moves)
+    }
+
+    private suspend fun getMove(
         coordinatesFly: Coordinates,
         tableSize: Int,
         isVolume: Boolean
-    ): Coordinates {
+    ): MoveData {
 
-        var notification = ""
+        var directionMove = DirectionMove.UP
         var successfulMove = false
         var newCoordinates = Coordinates()
 
@@ -43,7 +56,7 @@ class GameMoves @Inject constructor(): TextToSpeech.OnInitListener {
                         volumeZ = coordinatesFly.volumeZ
                     )
 
-                    notification = if (move < 0) "Влево" else "Вправо"
+                    directionMove = if (move < 0) DirectionMove.LEFT else DirectionMove.RIGHT
                     successfulMove = true
                 }
 
@@ -55,7 +68,7 @@ class GameMoves @Inject constructor(): TextToSpeech.OnInitListener {
                         volumeZ = coordinatesFly.volumeZ
                     )
 
-                    notification = if (move < 0) "Вверх" else "Вниз"
+                    directionMove = if (move < 0) DirectionMove.UP else DirectionMove.DOWN
                     successfulMove = true
                 }
 
@@ -68,41 +81,12 @@ class GameMoves @Inject constructor(): TextToSpeech.OnInitListener {
                         volumeZ = coordinatesFly.volumeZ + move
                     )
 
-                    notification = if (move < 0) "Назад" else "Вперед"
+                    directionMove = if (move < 0) DirectionMove.BACK else DirectionMove.FORWARD
                     successfulMove = true
                 }
             }
         }
-
-        announcement(notification)
-        return newCoordinates
-    }
-
-    private suspend fun announcement(notification: String) {
-        textToSpeech.setSpeechRate(3f)
-        textToSpeech.language = Locale("ru")
-
-
-//        val n = arrayListOf(
-//            "старт",
-//            "вверх",
-//            "вниз",
-//            "вверх",
-//            "спираль",
-//            "вверх",
-//            "вверх",
-//            "стоп"
-//        )
-////        textToSpeech.speak(n.toString(), TextToSpeech.QUEUE_ADD, null, "")
-//
-//        n.forEach {
-//            if (false)
-//                delay(2000L)
-//            textToSpeech.speak(it, TextToSpeech.QUEUE_ADD, null, "")
-//        }
-
-        textToSpeech.speak(notification, TextToSpeech.QUEUE_ADD, null, "")
-        delay(1000L)
+        return MoveData(newCoordinates, directionMove)
     }
 
     private fun getMovePlane(isVolume: Boolean): String {

@@ -20,7 +20,7 @@ sealed class SettingsState {
     }
 
     data class Voice(val data: String) : SettingsState() {
-        val key: Preferences.Key<String> = stringPreferencesKey(SettingsKeys.VOICE_KEY)
+        val key: Preferences.Key<String> = stringPreferencesKey(SettingsKeys.TYPE_COMMANDS_KEY)
     }
 
     data class NumberOfMoves(val data: Int) : SettingsState() {
