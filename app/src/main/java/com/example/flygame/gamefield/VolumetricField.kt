@@ -1,4 +1,4 @@
-package com.example.flygame.swipe_box
+package com.example.flygame.gamefield
 
 import android.util.Log
 import androidx.compose.foundation.background
@@ -24,11 +24,9 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import com.example.flygame.gamefield.FlatField
-import com.example.flygame.gamefield.GameViewModel
 import com.example.flygame.settings.models.SettingsData
 
-//@Preview
+
 @Composable
 fun VolumetricField(
     settings: SettingsData,
@@ -37,7 +35,7 @@ fun VolumetricField(
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
 
-    var i = 1;
+    var i = 1
     val list = List(settings.tableSize) { i++ }
 
     var boxOffsetY by remember { mutableFloatStateOf(screenWidth.value * (list.size / 2)) }

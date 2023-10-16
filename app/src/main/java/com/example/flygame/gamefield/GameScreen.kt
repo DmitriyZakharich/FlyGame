@@ -16,17 +16,16 @@ import androidx.compose.foundation.shape.AbsoluteCutCornerShape
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.FloatState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
@@ -38,7 +37,6 @@ import androidx.compose.ui.zIndex
 import com.example.flygame.R
 import com.example.flygame.settings.SettingsStore
 import com.example.flygame.settings.models.SettingsData
-import com.example.flygame.swipe_box.VolumetricField
 
 @Composable
 fun Table(gameViewModel: GameViewModel) {
@@ -68,15 +66,10 @@ fun FlatField(
     gameViewModel: GameViewModel,
     volumeIndex: Int = -1
 ) {
-
     val configuration = LocalConfiguration.current
-    val screenHeight = configuration.screenHeightDp.dp
     val screenWidth = configuration.screenWidthDp.dp
 
-    var paddingTop = 5.dp
-    if (volumeIndex == -1) {
-        paddingTop = 50.dp
-    }
+    val paddingTop = if (settings.isVolume)  0.dp else 50.dp
 
     Column(
         modifier = Modifier
@@ -165,27 +158,34 @@ fun MyCell(
 fun ArrowCommand(arrowCommand: State<DirectionMove>) {
     if (arrowCommand.value == DirectionMove.NULL) return
 
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp.dp
+
+
+
     val stateRotate = remember {
-        mutableFloatStateOf(0f)
+        mutableIntStateOf(R.drawable.arrow_up)
     }
-    stateRotate.floatValue = when (arrowCommand.value) {
-        DirectionMove.UP -> -90f
-        DirectionMove.DOWN -> 90f
-        DirectionMove.LEFT -> 180f
-        DirectionMove.RIGHT -> 0f
-        DirectionMove.FORWARD -> 75f
-        DirectionMove.BACK -> 25f
-        DirectionMove.NULL -> 0f
+    stateRotate.intValue = when (arrowCommand.value) {
+        DirectionMove.UP -> R.drawable.up_red_3
+        DirectionMove.DOWN -> R.drawable.down_red_3
+        DirectionMove.LEFT -> R.drawable.left_red_3
+        DirectionMove.RIGHT -> R.drawable.right_red_3
+        DirectionMove.FORWARD -> R.drawable.forward_red_3
+        DirectionMove.BACK -> R.drawable.back_red_3
+        DirectionMove.NULL -> R.drawable.up_red_3
     }
 
     Image(
-        painter = painterResource(id = R.drawable.wooden_arrow),
+        painter = painterResource(id = stateRotate.intValue),
         contentDescription = "icon",
         modifier = Modifier
-            .fillMaxSize(0.4f)
+            .fillMaxWidth()
+            .height(screenWidth)
+            .padding(start = 5.dp, end = 5.dp, top = 50.dp)
             .clip(CircleShape)
             .zIndex(1f)
-            .rotate(stateRotate.floatValue)
+            .alpha(0.5f)
     )
 }
 
