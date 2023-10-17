@@ -158,16 +158,16 @@ fun ArrowCommand(arrowCommand: State<DirectionMove>) {
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
 
-    val stateImage = remember { mutableIntStateOf(R.drawable.arrow_up) }
+    val stateImage = remember { mutableIntStateOf(R.drawable.up) }
 
     stateImage.intValue = when (arrowCommand.value) {
-        DirectionMove.UP -> R.drawable.up_red_3
-        DirectionMove.DOWN -> R.drawable.down_red_3
-        DirectionMove.LEFT -> R.drawable.left_red_3
-        DirectionMove.RIGHT -> R.drawable.right_red_3
-        DirectionMove.FORWARD -> R.drawable.forward_red_3
-        DirectionMove.BACK -> R.drawable.back_red_3
-        DirectionMove.NULL -> R.drawable.up_red_3
+        DirectionMove.UP -> R.drawable.up_5
+        DirectionMove.DOWN -> R.drawable.down_5
+        DirectionMove.LEFT -> R.drawable.left_5
+        DirectionMove.RIGHT -> R.drawable.right_5
+        DirectionMove.FORWARD -> R.drawable.forward_4
+        DirectionMove.BACK -> R.drawable.back_4
+        DirectionMove.NULL -> R.drawable.middle_up_4
     }
 
     Image(

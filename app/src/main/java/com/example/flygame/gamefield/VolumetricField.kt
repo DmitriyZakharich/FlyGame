@@ -10,14 +10,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.MutableFloatState
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
@@ -38,16 +38,12 @@ fun VolumetricField(
     var i = 1
     val list = List(settings.tableSize) { i++ }
 
-    var boxOffsetY by remember { mutableFloatStateOf(screenWidth.value * (list.size / 2)) }
-//    val scaleList = remember { mutableStateListOf(*getScale(list.size, boxOffsetY)) }
-
-
-    val scaleList = remember { mutableStateListOf<Float>() }
-    getScale(scaleList, list.size, boxOffsetY)
+    val boxOffsetY = remember { mutableFloatStateOf(screenWidth.value * (list.size / 2)) }
 
     /**Оставить scale, но использовать его для
      * width * scale и hi * scale
      * */
+    Log.d("TfffAG", "VolumetricField: ")
 
     Box(
         Modifier
@@ -55,9 +51,9 @@ fun VolumetricField(
             .pointerInput(Unit) {
                 detectDragGestures { change, dragAmount ->
                     change.consume()
-                    boxOffsetY += dragAmount.y
-                    if (boxOffsetY < 0) boxOffsetY = 1f
-                    if (boxOffsetY > ((list.size - 1) * screenWidth.value)) boxOffsetY =
+                    boxOffsetY.floatValue += dragAmount.y
+                    if (boxOffsetY.floatValue < 0) boxOffsetY.floatValue = 1f
+                    if (boxOffsetY.floatValue > ((list.size - 1) * screenWidth.value)) boxOffsetY.floatValue =
                         (list.size - 1) * screenWidth.value
                 }
             },
@@ -70,12 +66,12 @@ fun VolumetricField(
                     .offset(
                         y = getItemOffset(
                             volumeIndex,
-                            boxOffsetY.toInt(),
+                            boxOffsetY,
                             list.size,
                             screenWidth.value.toInt()
                         ).dp
                     )
-                    .fillMaxSize(scaleList[volumeIndex])
+                    .fillMaxSize(getNewScale(volumeIndex, list.size, boxOffsetY))
 //                    .height(screenWidth)
                     .zIndex(-volumeIndex.toFloat())
 
@@ -93,29 +89,17 @@ fun VolumetricField(
     }
 }
 
-//TODO передалать на приём state и изменение в теле
-fun getItemOffset(count: Int, boxOffset: Int, size: Int, screenWidth: Int): Int {
+fun getItemOffset(count: Int, boxOffset: MutableFloatState, size: Int, screenWidth: Int): Int {
     var offset = 40 * (size - count - 1)
-    if (boxOffset >= screenWidth * count)
-        offset += boxOffset - (screenWidth * count)
+    if (boxOffset.floatValue.toInt() >= screenWidth * count)
+        offset += boxOffset.floatValue.toInt() - (screenWidth * count)
     return offset
 }
 
-fun getScale(scaleList: SnapshotStateList<Float>, size: Int, boxOffset: Float) {
+fun getNewScale(index: Int, size: Int, boxOffset: MutableFloatState): Float {
     val defaultScale = 1f
-    val array = Array(size){1f}
-
-    Log.d("TfffAG", "getNewScale: ")
-
-    for (count in 0 until size) {
-        array[count] = defaultScale - (0.075f * count  /(boxOffset / 1000))
-    }
-
-    for (count in 0 until size) {
-         if (array[count] < 0.5f ) array[count] = 0.5f
-    }
-
-    scaleList.clear()
-    scaleList.addAll(array)
-
+    var result = 1f
+    result = defaultScale - (0.075f * index  /(boxOffset.floatValue / 1000))
+    if (result < 0.5f ) result = 0.5f
+    return result
 }
