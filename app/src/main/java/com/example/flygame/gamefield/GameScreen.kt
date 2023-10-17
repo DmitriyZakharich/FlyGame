@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,7 +28,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -50,7 +50,7 @@ fun Table(gameViewModel: GameViewModel) {
     val gameStatus by gameViewModel.stateGameStatus.collectAsState()
     val arrowCommand = gameViewModel.stateCommandArrow.collectAsState()
 
-    ArrowCommand(arrowCommand)
+    ArrowCommand(arrowCommand, settings.isHideField)
 
     if (gameStatus == GameStatus.GIVE_COMMANDS && settings.isHideField) return   //Скрывать поле во время команд
 
@@ -152,13 +152,16 @@ fun MyCell(
 }
 
 @Composable
-fun ArrowCommand(arrowCommand: State<DirectionMove>) {
+fun ArrowCommand(arrowCommand: State<DirectionMove>, hideField: Boolean) {
     if (arrowCommand.value == DirectionMove.NULL) return
 
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
 
     val stateImage = remember { mutableIntStateOf(R.drawable.up) }
+
+    val stateAlpha = remember { mutableFloatStateOf(1f)}
+    stateAlpha.floatValue = if (hideField) 1f else 0.55f
 
     stateImage.intValue = when (arrowCommand.value) {
         DirectionMove.UP -> R.drawable.up_5
@@ -178,7 +181,7 @@ fun ArrowCommand(arrowCommand: State<DirectionMove>) {
             .fillMaxWidth()
             .height(screenWidth - 20.dp)
             .zIndex(1f)
-            .alpha(0.55f)
+            .alpha(stateAlpha.floatValue)
     )
 }
 
