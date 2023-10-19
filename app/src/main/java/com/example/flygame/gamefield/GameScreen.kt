@@ -40,7 +40,7 @@ import com.example.flygame.settings.SettingsStore
 import com.example.flygame.settings.models.SettingsData
 
 @Composable
-fun Table(gameViewModel: GameViewModel) {
+fun Table(gameViewModel: IGameViewModel) {
 
     val settingsStore = SettingsStore(LocalContext.current)
 
@@ -63,7 +63,7 @@ fun Table(gameViewModel: GameViewModel) {
 @Composable
 fun FlatField(
     settings: SettingsData,
-    gameViewModel: GameViewModel,
+    gameViewModel: IGameViewModel,
     volumeIndex: Int = -1
 ) {
     val configuration = LocalConfiguration.current
@@ -109,7 +109,7 @@ fun FlatField(
 fun MyCell(
     id: Coordinates,
     modifier: Modifier,
-    gameViewModel: GameViewModel
+    gameViewModel: IGameViewModel
 ) {
     val coordinatesFly by gameViewModel.stateCoordinatesFly.collectAsState()
     val gameStatus by gameViewModel.stateGameStatus.collectAsState()

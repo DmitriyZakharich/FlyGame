@@ -87,7 +87,7 @@ fun MainScreen(name: String, modifier: Modifier = Modifier) {
             GameStatus.STOP -> "Старт"
         }
 
-    Log.d("TA22222G", "MainScreen gameStatus: ${gameStatus}")
+    Log.d("TA22222G", "MainScreen gameStatus: $gameStatus")
 
 
     val appSettingsViewModel: AppSettingsViewModel = viewModel()

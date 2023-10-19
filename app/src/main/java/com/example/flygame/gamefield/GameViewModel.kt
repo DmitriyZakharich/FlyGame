@@ -24,16 +24,16 @@ class GameViewModel @Inject constructor(
     private val settingsStore: SettingsStore,
     private val moveManager: MoveManager,
     private val announcer: Announcer
-) : ViewModel(), DefaultLifecycleObserver {
+) : ViewModel(), DefaultLifecycleObserver, IGameViewModel {
 
     private val _stateCoordinatesFly: MutableStateFlow<Coordinates> = MutableStateFlow(Coordinates())
-    val stateCoordinatesFly: StateFlow<Coordinates> = _stateCoordinatesFly
+    override val stateCoordinatesFly: StateFlow<Coordinates> = _stateCoordinatesFly
 
     private val _stateGameStatus: MutableStateFlow<GameStatus> = MutableStateFlow(GameStatus.STOP)
-    val stateGameStatus: StateFlow<GameStatus> = _stateGameStatus
+    override val stateGameStatus: StateFlow<GameStatus> = _stateGameStatus
 
     private val _stateCommandArrow: MutableStateFlow<DirectionMove> = MutableStateFlow(DirectionMove.NULL)
-    val stateCommandArrow: StateFlow<DirectionMove> = _stateCommandArrow
+    override val stateCommandArrow: StateFlow<DirectionMove> = _stateCommandArrow
 
     private var coordinatesFly = Coordinates()
     private var job: Job? = null
@@ -57,7 +57,7 @@ class GameViewModel @Inject constructor(
         _stateCoordinatesFly.emit(coordinatesFly)
     }
 
-    fun startGame() {
+    override fun startGame() {
         job = viewModelScope.launch {
             settingsStore.getData().collect {
                 _stateGameStatus.emit(GameStatus.GIVE_COMMANDS)
@@ -88,7 +88,7 @@ class GameViewModel @Inject constructor(
         }
     }
 
-    fun endGame() {
+    override fun endGame() {
         viewModelScope.launch{
             _stateGameStatus.emit(GameStatus.STOP)
             _stateCommandArrow.emit(DirectionMove.NULL)
