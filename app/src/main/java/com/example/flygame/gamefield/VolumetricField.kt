@@ -1,11 +1,13 @@
 package com.example.flygame.gamefield
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,6 +32,7 @@ fun VolumetricField(
 ) {
     val configuration = LocalConfiguration.current
     val itemSize = configuration.screenWidthDp.dp   //ширина и высота item = ширине экрана
+    val screenHeight = configuration.screenHeightDp.dp   //ширина и высота item = ширине экрана
 
     val quantityItems = remember { mutableIntStateOf(settings.tableSize) }
     val boxOffsetY = remember { mutableFloatStateOf(itemSize.value * (quantityItems.intValue / 2)) }
@@ -43,6 +46,7 @@ fun VolumetricField(
 
     var i = 1
     val list = List(quantityItems.intValue) { i++ }
+    val layerHeaderHeight = 30
 
     /**Оставить scale, но использовать его для
      * width * scale и hi * scale
@@ -55,7 +59,7 @@ fun VolumetricField(
                     change.consume()
                     boxOffsetY.floatValue += dragAmount.y
                     if (boxOffsetY.floatValue < 0) boxOffsetY.floatValue = 1f
-                    if (boxOffsetY.floatValue > maxOffset.floatValue){
+                    if (boxOffsetY.floatValue > maxOffset.floatValue) {
                         boxOffsetY.floatValue = maxOffset.floatValue
 
                     }
@@ -68,13 +72,15 @@ fun VolumetricField(
                 modifier = Modifier
                     .offset(
                         y = getItemOffset(
+                            layerHeaderHeight,
                             volumeIndex,
                             boxOffsetY,
                             list.size,
                             itemSize.value.toInt()
                         ).dp
                     )
-                    .fillMaxSize(getScale(volumeIndex, list.size, boxOffsetY))
+                    .fillMaxSize(getScale(volumeIndex, list.size, boxOffsetY, maxOffset))
+
 //                    .height(screenWidth)
                     .zIndex(-volumeIndex.toFloat())
 
@@ -83,7 +89,11 @@ fun VolumetricField(
                     Text(text = "Слой $item ${if (volumeIndex == list.size / 2 ) "- Центр" else ""}",
                         modifier = Modifier
                             .background(Color.Blue)
-                            .fillMaxWidth(), fontSize = 25.sp
+                            .border(width = 1.dp, color = Color.Red )
+                            .fillMaxWidth()
+                            .height(30.dp),
+                        fontSize = 23.sp,
+                        maxLines = 1
                     )
                     FlatField(settings, gameViewModel, volumeIndex)
                 }
@@ -92,20 +102,29 @@ fun VolumetricField(
     }
 }
 
-fun getItemOffset(index: Int, boxOffset: MutableFloatState, size: Int, itemSize: Int): Int {
-
-    var itemOffset = 40 * (size - index - 1)
-
+fun getItemOffset(layerHeaderHeight: Int, index: Int, boxOffset: MutableFloatState, size: Int, itemSize: Int): Int {
+    var itemOffset = layerHeaderHeight * (size - index - 1)
     if (boxOffset.floatValue.toInt() >= itemSize * index)
         itemOffset += boxOffset.floatValue.toInt() - (itemSize * index)
-
     return itemOffset
 }
 
-fun getScale(index: Int, size: Int, boxOffset: MutableFloatState): Float {
-    val defaultScale = 1f
-    var result: Float
-    result = defaultScale - (0.075f * index  /(boxOffset.floatValue / 1000))
-    if (result < 0.75f ) result = 0.75f
+fun getScale(index: Int, size: Int, boxOffset: MutableFloatState, maxOffset: MutableFloatState): Float {
+    val minScale = 0.7f
+    val maxScale = 1f
+    var result = 1f
+
+    val stepBetweenItems = (maxScale - minScale) / (size - 1)
+    result = minScale + ((size - 1 - index) * stepBetweenItems)
+
+    val difference = maxScale - minScale
+    val steps = 30
+    val oneStep = difference / steps
+    val weight = maxOffset.floatValue / steps
+    val additionalScale = oneStep * boxOffset.floatValue / weight
+    result += additionalScale
+
+    if (result < minScale) result = minScale
+    if (result > maxScale) result = maxScale
     return result
 }
