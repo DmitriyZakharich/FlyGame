@@ -1,6 +1,5 @@
 package com.example.flygame.gamefield
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -21,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
@@ -47,15 +47,12 @@ fun VolumetricField(
     var i = 1
     val list = List(quantityItems.intValue) { i++ }
     val layerHeaderHeight = 30
-
     Box(
         Modifier
             .fillMaxSize()
             .pointerInput(Unit) {
                 detectDragGestures { change, dragAmount ->
                     change.consume()
-                    Log.d("TAGtttttttt", "dragAmount.y: ${dragAmount.y}")
-
                     boxOffsetY.floatValue += dragAmount.y
                     if (boxOffsetY.floatValue < 0) boxOffsetY.floatValue = 1f
                     if (boxOffsetY.floatValue > maxOffset.floatValue) {
@@ -66,51 +63,81 @@ fun VolumetricField(
             },
         contentAlignment = Alignment.TopCenter
     ) {
-        list.forEachIndexed { volumeIndex, item ->
-            Box(
-                modifier = Modifier
-                    .offset(
-                        y = getItemOffset(
-                            layerHeaderHeight,
-                            volumeIndex,
-                            boxOffsetY,
-                            list.size,
-                            itemSize.value.toInt()
-                        ).dp
-                    )
-                    .fillMaxSize(getScale(volumeIndex, list.size, boxOffsetY, maxOffset))
-                    .zIndex(-volumeIndex.toFloat())
+        VolumetricFieldItems(
+            boxOffsetY,
+            maxOffset,
+            list,
+            layerHeaderHeight,
+            itemSize,
+            settings,
+            gameViewModel
+        )
+    }
+}
 
+@Composable
+fun VolumetricFieldItems(
+    boxOffsetY: MutableFloatState,
+    maxOffset: MutableFloatState,
+    list: List<Int>,
+    layerHeaderHeight: Int,
+    itemSize: Dp,
+    settings: SettingsData,
+    gameViewModel: IGameViewModel
+) {
+    list.forEachIndexed { volumeIndex, item ->
+        Column(
+            modifier = Modifier
+                .offset(
+                    y = getItemOffset(
+                        layerHeaderHeight,
+                        volumeIndex,
+                        boxOffsetY,
+                        list.size,
+                        itemSize.value.toInt()
+                    ).dp
+                )
+                .fillMaxSize(getScale(volumeIndex, list.size, boxOffsetY, maxOffset))
+                .zIndex(-volumeIndex.toFloat())
+        ) {
+            Text(
+                text = "Слой $item ${if (volumeIndex == list.size / 2) "- Центр" else ""}",
+                modifier = Modifier
+                    .background(Color.Blue)
+                    .border(width = 1.dp, color = Color.Red)
+                    .fillMaxWidth()
+                    .height(30.dp),
+                fontSize = 23.sp,
+                maxLines = 1
+            )
+            if (boxOffsetY.floatValue > itemSize.value * (volumeIndex - 1) &&
+                boxOffsetY.floatValue < itemSize.value * volumeIndex + itemSize.value * 1.5
             ) {
-                Column (modifier = Modifier.fillMaxSize()) {
-                    Text(text = "Слой $item ${if (volumeIndex == list.size / 2 ) "- Центр" else ""}",
-                        modifier = Modifier
-                            .background(Color.Blue)
-                            .border(width = 1.dp, color = Color.Red)
-                            .fillMaxWidth()
-                            .height(30.dp),
-                        fontSize = 23.sp,
-                        maxLines = 1
-                    )
-                    if (boxOffsetY.floatValue > itemSize.value * (volumeIndex - 1) &&
-                        boxOffsetY.floatValue <  itemSize.value * volumeIndex + itemSize.value * 1.1
-                    ){
-                        FlatField(settings, gameViewModel, volumeIndex)
-                    }
-                }
+                FlatField(settings, gameViewModel, volumeIndex)
             }
         }
     }
 }
 
-fun getItemOffset(layerHeaderHeight: Int, index: Int, boxOffset: MutableFloatState, size: Int, itemSize: Int): Int {
-    var itemOffset = (layerHeaderHeight + 15) * (size - index - 1)
+fun getItemOffset(
+    layerHeaderHeight: Int,
+    index: Int,
+    boxOffset: MutableFloatState,
+    size: Int,
+    itemSize: Int
+): Int {
+    var itemOffset = (layerHeaderHeight) * (size - index - 1)
     if (boxOffset.floatValue.toInt() >= itemSize * index)
         itemOffset += boxOffset.floatValue.toInt() - (itemSize * index)
     return itemOffset
 }
 
-fun getScale(index: Int, size: Int, boxOffset: MutableFloatState, maxOffset: MutableFloatState): Float {
+fun getScale(
+    index: Int,
+    size: Int,
+    boxOffset: MutableFloatState,
+    maxOffset: MutableFloatState
+): Float {
     val minScale = 0.7f
     val maxScale = 1f
     var result = 1f
