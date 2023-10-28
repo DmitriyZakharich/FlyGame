@@ -1,7 +1,5 @@
 package com.example.flygame.settings.models
 
-import com.example.flygame.instructions.TypesCommands
-
 data class SettingsData(
     val tableSize: Int = listTableSizes[0].toInt(),
     val isVolume: Boolean = false,
@@ -20,7 +18,7 @@ data class SettingsViewData(
     val spinnerIsHideField: Boolean = false
 )
 
-val listTableSizes = listOf("3", "5", "7", "9")
+val listTableSizes = listOf("3", "5", "7"/*, "9"*/)
 val listSpeed = listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "10")
 val listTypesCommands = listOf("Voice", "Arrows")
 val listNumberOfMoves = listOf("3", "5", "7", "10", "15", "20")

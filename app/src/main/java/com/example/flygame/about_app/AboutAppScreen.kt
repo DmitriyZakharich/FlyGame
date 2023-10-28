@@ -41,7 +41,6 @@ fun AboutAppScreen(stateAboutApp: MutableState<Boolean>) {
     ) {
         Card(
             shape = RoundedCornerShape(10.dp),
-            // modifier = modifier.size(280.dp, 240.dp)
             modifier = Modifier
                 .fillMaxWidth(),
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
@@ -73,11 +72,11 @@ fun AboutAppScreen(stateAboutApp: MutableState<Boolean>) {
 
                 Spacer(Modifier.height(15.dp))
 
-                Text (text = "Другое приложение разработчика:",
+                Text (text = stringResource(R.string.other_apps),
                     fontSize = 20.sp)
 
                 ClickableText(
-                    text = AnnotatedString("Таблица Шульте на весь экран"),
+                    text = AnnotatedString(stringResource(R.string.schulte_table)),
                     onClick = {uriHandler.openUri("https://play.google.com/store/apps/details?id=ru.schultetabledima.schultetable")},
                     style = TextStyle(
                         color = colorResource(id = R.color.light_sky_blue),
@@ -86,12 +85,7 @@ fun AboutAppScreen(stateAboutApp: MutableState<Boolean>) {
                         textDecoration = TextDecoration.Underline,
                     )
                 )
-
-
             }
         }
     }
-
-
-
 }

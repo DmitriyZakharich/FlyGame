@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/menuFragment"
-        android:name="com.example.flygame.MenuFragment"
+        android:name="com.example.flygame.archived_code.MenuFragment"
         android:label="fragment_menu"
         tools:layout="@layout/fragment_menu" >
         <action
@@ -25,12 +25,12 @@
     </fragment>
     <fragment
         android:id="@+id/gameFragment"
-        android:name="com.example.flygame.gamefield.GameFragment"
+        android:name="com.example.flygame.archived_code.GameFragment"
         android:label="fragment_game"
         tools:layout="@layout/fragment_game" />
     <fragment
         android:id="@+id/settingsFragment"
-        android:name="com.example.flygame.settings.SettingsFragment"
+        android:name="com.example.flygame.archived_code.SettingsFragment"
         android:label="fragment_settings"
         tools:layout="@layout/fragment_settings" />
 
@@ -41,7 +41,7 @@
         tools:layout="@layout/fragment_statistic" />
     <fragment
         android:id="@+id/instructionsFragment"
-        android:name="com.example.flygame.instructions.InstructionsFragment"
+        android:name="com.example.flygame.archived_code.InstructionsFragment"
         android:label="fragment_instructions"
         tools:layout="@layout/fragment_instructions" />
 </navigation>

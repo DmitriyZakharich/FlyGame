@@ -1,5 +1,7 @@
 package com.example.flygame.gamefield
 
+import com.example.flygame.gamefield.domain.MoveManager
+import com.example.flygame.gamefield.models.Coordinates
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test

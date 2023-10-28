@@ -23,11 +23,13 @@
         <item>10x10</item>
     </string-array>
     <string name="title_activity_compose">ComposeActivity</string>
-    <string name="Settings">Настройки</string>
     <string name="speed">Скорость</string>
     <string name="voice">Голос</string>
     <string name="number_of_moves">Количество ходов</string>
     <string name="complication">Усложнения</string>
     <string name="hide_field">Скрывать поле</string>
+    <string name="waiting_response">Ожидание ответа</string>
+    <string name="other_apps">Другое приложение разработчика:</string>
+    <string name="schulte_table">Таблица Шульте на весь экран</string>
 </resources>
 
