@@ -14,13 +14,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableFloatState
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
@@ -38,6 +41,8 @@ fun VolumetricField(
     val quantityItems = remember { mutableIntStateOf(settings.tableSize) }
     val boxOffsetY = remember { mutableFloatStateOf(itemSize.value * (quantityItems.intValue / 2)) }
     val maxOffset = remember { mutableFloatStateOf((quantityItems.intValue - 1) * itemSize.value) }
+    val boxSize = remember { mutableStateOf(IntSize.Zero) }
+
 
     if (quantityItems.intValue != settings.tableSize) { //измениние размера таблицы
         quantityItems.intValue = settings.tableSize
@@ -48,6 +53,12 @@ fun VolumetricField(
     var i = 1
     val list = List(quantityItems.intValue) { i++ }
     val layerHeaderHeight = 30
+//        if ((boxSize.value.height - itemSize.value) / list.size < 40)
+//            ((boxSize.value.height - itemSize.value) / list.size).toInt()
+//        else
+//            40
+
+
     Box(
         Modifier
             .fillMaxSize()
@@ -61,10 +72,9 @@ fun VolumetricField(
                     if (boxOffsetY.floatValue > maxOffset.floatValue) {
                         boxOffsetY.floatValue = maxOffset.floatValue
                     }
-
-
                 }
-            },
+            }
+            .onSizeChanged { boxSize.value = it },
         contentAlignment = Alignment.TopCenter
     ) {
         VolumetricFieldItems(
@@ -110,8 +120,8 @@ fun VolumetricFieldItems(
                     .background(Color.Blue)
                     .border(width = 1.dp, color = Color.Red)
                     .fillMaxWidth()
-                    .height(30.dp),
-                fontSize = 23.sp,
+                    .height(layerHeaderHeight.dp),
+                fontSize = (layerHeaderHeight - 7).sp,
                 maxLines = 1,
                 color = Color.White
             )
@@ -131,6 +141,7 @@ fun getItemOffset(
     size: Int,
     itemSize: Int
 ): Int {
+
     var itemOffset = (layerHeaderHeight) * (size - index - 1)
     if (boxOffset.floatValue.toInt() >= itemSize * index)
         itemOffset += boxOffset.floatValue.toInt() - (itemSize * index)
