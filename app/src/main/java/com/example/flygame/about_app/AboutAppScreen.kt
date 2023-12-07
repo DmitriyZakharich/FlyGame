@@ -67,7 +67,6 @@ fun AboutAppScreen(stateAboutApp: MutableState<Boolean>) {
                 Text (text = text.value,
                     fontSize = 18.sp)
 
-
                 ClickableText(
                     text = AnnotatedString(stringResource(R.string.advance_courses)),
                     onClick = {uriHandler.openUri(courses)},

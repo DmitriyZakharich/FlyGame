@@ -34,5 +34,14 @@
     <string name="advance_courses">Курсы Advance</string>
     <string name="ya_ru">https://ya.ru</string>
     <string name="my_apps">https://play.google.com/store/apps/details?id=ru.schultetabledima.schultetable</string>
+    <string name="instructions_hide_field_1">Для лучшего эффекта от тренировок лучше во время игры представлять поле у себя в воображении</string>
+    <string name="general_instructions_1">Муха - это игра для развития внимания и пространственного ориентирования</string>
+    <string name="general_instructions_2">Поле игры представляет из себя таблицу с мухой, расположенной в центре</string>
+    <string name="general_instructions_3">При нажатии кнопки \"Старт\" даются команды и нужно отслеживать движение мухи по таблице</string>
+    <string name="general_instructions_4">После окончания команд нажмите на ячейку для проверки</string>
+    <string name="general_instructions_5">Для лучшего эффекта выключите отображение поля и представляйте его у себя в воображении. Глаза закрывать не нужно.</string>
+    <string name="instructions_volumetric_field_1">Объемное поле</string>
+    <string name="instructions_volumetric_field_2">Представьте, что есть глубина</string>
+    <string name="instructions_volumetric_field_3">Муха может двигаться вперед и назад</string>
 </resources>
 

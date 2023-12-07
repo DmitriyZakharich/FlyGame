@@ -1,60 +1,27 @@
 package com.example.flygame.instructions.repository
 
+import com.example.flygame.App.Companion.appContext
 import com.example.flygame.R
 import com.example.flygame.instructions.models.InstructionData
 import javax.inject.Inject
 
 class InstructionsModel @Inject constructor() {
 
-    val generalInstructions = mutableListOf<InstructionData>().apply {
-        add(
-            InstructionData(
-                R.drawable.icon_fly,
-                "Муха - это игра для развития внимания и пространственного ориентирования"
-            )
-        )
-        add(
-            InstructionData(
-                R.drawable.ic_launcher_background,
-                "Поле игры представляет из себя таблицу с мухой, расположенной в центре"
-            )
-        )
-        add(
-            InstructionData(
-                R.drawable.ic_launcher_foreground,
-                "При нажатии кнопки \"Старт\" даются команды и нужно отслеживать движение мухи по таблице"
-            )
-        )
-        add(
-            InstructionData(
-                R.drawable.ic_launcher_foreground,
-                "После окончания команд нажмите на ячейку для проверки"
-            )
-        )
-        add(
-            InstructionData(
-                R.drawable.ic_launcher_foreground,
-                "Для лучшего эффекта выключите отображение поля и представляйте его у себя в воображении. Глаза закрывать не нужно."
-            )
-        )
-    }
+    val generalInstructions = mutableListOf(
+        InstructionData( R.drawable.icon_fly, appContext.getString(R.string.general_instructions_1) ),
+        InstructionData( R.drawable.ic_launcher_background, appContext.getString(R.string.general_instructions_2) ),
+        InstructionData( R.drawable.ic_launcher_foreground, appContext.getString(R.string.general_instructions_3) ),
+        InstructionData( R.drawable.ic_launcher_foreground, appContext.getString(R.string.general_instructions_4) ),
+        InstructionData( R.drawable.ic_launcher_foreground, appContext.getString(R.string.general_instructions_5) )
+    )
 
-    val instructionsVolumetricField = mutableListOf<InstructionData>().apply {
-        add(InstructionData(R.drawable.icon_fly, "Объемное поле"))
-        add(InstructionData(R.drawable.icon_fly, "Представьте, что есть глубина"))
-        add(
-            InstructionData(
-                R.drawable.ic_launcher_background, "Муха может двигаться вперед и назад"
-            )
-        )
-    }
+    val instructionsVolumetricField = mutableListOf(
+        InstructionData(R.drawable.icon_fly, appContext.getString(R.string.instructions_volumetric_field_1)),
+        InstructionData(R.drawable.icon_fly, appContext.getString(R.string.instructions_volumetric_field_2)),
+        InstructionData( R.drawable.ic_launcher_background, appContext.getString(R.string.instructions_volumetric_field_3) )
+    )
 
-    val instructionsHideField = mutableListOf<InstructionData>().apply {
-        add(
-            InstructionData(
-                R.drawable.icon_fly,
-                "Для лучшего эффекта от тренировок лучше во время игры представлять поле у себя в воображении"
-            )
-        )
-    }
+    val instructionsHideField = mutableListOf(
+        InstructionData( R.drawable.icon_fly, appContext.getString(R.string.instructions_hide_field_1) )
+    )
 }
