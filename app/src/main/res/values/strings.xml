@@ -31,5 +31,8 @@
     <string name="waiting_response">Ожидание ответа</string>
     <string name="other_apps">Другое приложение разработчика:</string>
     <string name="schulte_table">Таблица Шульте на весь экран</string>
+    <string name="advance_courses">Курсы Advance</string>
+    <string name="ya_ru">https://ya.ru</string>
+    <string name="my_apps">https://play.google.com/store/apps/details?id=ru.schultetabledima.schultetable</string>
 </resources>
 

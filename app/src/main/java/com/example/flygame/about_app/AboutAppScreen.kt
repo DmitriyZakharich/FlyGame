@@ -13,6 +13,9 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PaintingStyle.Companion.Stroke
@@ -28,11 +31,19 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.flygame.R
+import com.example.flygame.gamefield.viewmodel.GameViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 
 @Composable
 fun AboutAppScreen(stateAboutApp: MutableState<Boolean>) {
     val uriHandler = LocalUriHandler.current
+    val courses = stringResource(R.string.ya_ru)
+    val myApps = stringResource(R.string.my_apps)
+
+    val aboutAppViewModel: AboutAppViewModel = viewModel()
+    val text = aboutAppViewModel.text.collectAsState()
 
     Dialog(
         onDismissRequest = {
@@ -53,15 +64,13 @@ fun AboutAppScreen(stateAboutApp: MutableState<Boolean>) {
 
                 Spacer(Modifier.height(15.dp))
 
-                Text (text = "Многие идеи по повышению сложности игры я подчеркнул, проходя курсы Advance. " +
-                        "Advance - это образовательный центр, который преподаёт технологии эффективного обучения." +
-                        "Если вы заинтересовались, то можете ознакомиться с их курсами по следующей ссылке:",
+                Text (text = text.value,
                     fontSize = 18.sp)
 
 
                 ClickableText(
-                    text = AnnotatedString("Курсы Advance"),
-                    onClick = {uriHandler.openUri("https://ya.ru/")},
+                    text = AnnotatedString(stringResource(R.string.advance_courses)),
+                    onClick = {uriHandler.openUri(courses)},
                     style = TextStyle(
                         color = colorResource(id = R.color.light_sky_blue),
                         fontSize = 18.sp,
@@ -77,7 +86,7 @@ fun AboutAppScreen(stateAboutApp: MutableState<Boolean>) {
 
                 ClickableText(
                     text = AnnotatedString(stringResource(R.string.schulte_table)),
-                    onClick = {uriHandler.openUri("https://play.google.com/store/apps/details?id=ru.schultetabledima.schultetable")},
+                    onClick = {uriHandler.openUri(myApps)},
                     style = TextStyle(
                         color = colorResource(id = R.color.light_sky_blue),
                         fontSize = 18.sp,
